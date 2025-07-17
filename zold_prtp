@@ -1,0 +1,112 @@
+import requests
+from bs4 import BeautifulSoup
+
+import LinkConst
+import TechData
+import UniDate
+
+HEADERS = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Connection": "keep-alive"
+    }
+
+def get_request(link, service_name):
+    try:
+        response = requests.get(LinkConst.ERIP, headers=HEADERS, timeout=10)  # Добавлен таймаут
+        response.raise_for_status()  # Проверка на HTTP-ошибки
+        return BeautifulSoup(response.content, "lxml")
+
+    except requests.exceptions.RequestException as e:
+        print("Ошибка при выполнении запроса:", e)
+        return None
+    except Exception as e:
+        print("Неизвестная ошибка:", e)
+        return None
+
+def parse_erip(service_name = 'service_name is null'):
+    all_notif = []
+    filtered_notif = []
+    tech_data_list = []
+
+    soup = get_request(LinkConst.ERIP, service_name)
+    if soup is None:
+        return
+
+    all_notif = soup.find_all('a', class_='news-item')
+    #     service_type = ''
+    #     publishing_date = ''
+    #     date_of_work = ''
+    #     description = ''
+    #     link = ''
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+
+        if data.get('href') is not None:
+               temp_tech_data.link = data.get('href')
+
+        if data.find_all('span', class_='date') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('span', class_='date')[0].text.strip())
+            universal_date.parse_date_hard()
+            temp_tech_data.publishing_date = universal_date.to_format()
+
+        if data.find_all('span', class_='news-title') is not None:
+            temp_tech_data.description = data.find_all('span', class_='news-title')[0].text.strip()
+
+        tech_data_list.append(temp_tech_data)
+
+    print("Отфильтрованные уведомления:")
+    for notif in tech_data_list:
+        print(notif.service_type)
+        print(notif.date_of_work)
+        print(notif.publishing_date)
+        print(notif.link)
+        print(notif.description)
+        print('-------------------')
+
+    return tech_data_list
+
+def parse_BFT(service_name='service_name is null'):
+    all_notif = []
+    filtered_notif = []
+    tech_data_list = []
+
+    soup = get_request(LinkConst.BFT, service_name)
+    if soup is None:
+        return
+    print(soup.prettify())
+    all_notif = soup.find_all('div', class_='blog_post_preview rrrt format-standard')
+    #     service_type = ''
+    #     publishing_date = ''
+    #     date_of_work = ''
+    #     description = ''
+    #     link = ''
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+
+        if data.get('href') is not None:
+            temp_tech_data.link = data.get('href')
+
+        if data.find_all('span', class_='date') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('span', class_='date')[0].text.strip())
+            universal_date.parse_date_hard()
+            temp_tech_data.publishing_date = universal_date.to_format()
+
+        if data.find_all('span', class_='news-title') is not None:
+            temp_tech_data.description = data.find_all('span', class_='news-title')[0].text.strip()
+
+        tech_data_list.append(temp_tech_data)
+
+    print("Отфильтрованные уведомления:")
+    for notif in tech_data_list:
+        print(notif.service_type)
+        print(notif.date_of_work)
+        print(notif.publishing_date)
+        print(notif.link)
+        print(notif.description)
+        print('-------------------')
+
+    return tech_data_list
