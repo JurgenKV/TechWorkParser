@@ -25,11 +25,16 @@ chrome_options.add_argument(
 
 
 def initialize_driver():
-    service = Service("D:\\Soft\\chromedriver\\chromedriver.exe")  # Укажите путь к chromedriver
+    try:
+        f = open('ChromeDriver_path.txt', 'r')
+        service = Service(f.readline().strip())  # Укажите путь к chromedriver
+        f.close()
+    except Exception as e:
+        print(e)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
 
-def get_page_with_selenium(url, timeout=10):
+def get_page_with_selenium(url, timeout=20):
     try:
         driver = initialize_driver()
         driver.get(url)

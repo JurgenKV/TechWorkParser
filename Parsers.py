@@ -1,4 +1,6 @@
 import datetime
+import re
+
 import lxml
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -94,7 +96,7 @@ def parse_BFT(service_name='service_name is null'):
 
         tech_data_list.append(temp_tech_data)
     return tech_data_list
-
+# gold template
 def parse_BPC(service_name = 'service_name is null'):
     tech_data_list = []
     page_source = HTMLTaker.get_page_with_selenium(LinkConst.BPC)
@@ -105,25 +107,25 @@ def parse_BPC(service_name = 'service_name is null'):
 
     if soup is None:
         return
-
+    # item новости
     all_notif = soup.find_all('div', class_='make_bet news_tab_item news-item s-5')
 
     for data in all_notif:
         temp_tech_data = TechData.TechData()
         temp_tech_data.service_type = service_name
-
+        # Ссылка на новость
         link_tag = data.find('a')
         if link_tag is not None and link_tag.get('href') is not None:
             temp_tech_data.link =  urljoin(LinkConst.BPC, link_tag.get('href'))
-
+        # Дата публикации
         if data.find_all('div', class_='news_item_date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='news_item_date'))
             temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
-
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
         if data.find_all('h3') is not None:
             temp_tech_data.work_header = data.find_all("h3")[0].text.strip()
             temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('h3'))
-
+        # Описание новости (если есть)
         if data.find_all('p', class_='preview-text') is not None:
             temp_tech_data.description = data.find_all('p', class_='preview-text')[0].text.strip()
 
@@ -460,6 +462,578 @@ def parse_Oplati(service_name = 'service_name is null'):
         if data.find_all('h1') is not None:
             temp_tech_data.work_header = data.find_all("h1")[0].text.strip()
             temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('h1'))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Kupala(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Kupala)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+
+    all_notif = soup.find_all('div', class_='news-item js-hover')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Kupala, link_tag.get('href'))
+
+        if data.find_all('div', class_='date') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='date'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+
+        if data.find_all('a', class_="title js-lnk") is not None:
+            temp_tech_data.work_header = data.find_all('a', class_="title js-lnk")[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('a', class_="title js-lnk"))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_BVFB(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.BVFB)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='pl-0 col-12 col-sm-6 col-md-4 py-3 bb_dark_line d-flex flex-column justify-content-between')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.BVFB, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('small', class_='text-muted') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('small', class_='text-muted'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('a', class_='text-pc font-weight-bold proxima-nova fs-16 mb-2') is not None:
+            temp_tech_data.work_header = data.find_all('a', class_='text-pc font-weight-bold proxima-nova fs-16 mb-2')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('a', class_='text-pc font-weight-bold proxima-nova fs-16 mb-2'))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_NBRB(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.NBRB)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('article', class_='n-article')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.NBRB, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='n-date') is not None:
+            try:
+                text_date = data.find_all('div', class_='n-date')[0].text.split()
+                universal_date = UniDate.UniversalDate(f'{text_date[2]} {text_date[0]} {text_date[1]}')
+                universal_date.parse_date_hard()
+                temp_tech_data.publishing_date = universal_date.to_format()
+            except IndexError:
+                print()
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('div', class_='pub__descr') is not None:
+            try:
+                temp_tech_data.work_header = data.find_all('div', class_='pub__descr')[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='pub__descr'))
+            except Exception as e:
+                print(e)
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_AlfaRu(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_AlfaRu)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('li', class_='dLBOHl bLBOHl hLBOHl')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_AlfaRu, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('span', class_='aR7Oy1 bR7Oy1 vR7Oy1 RR7Oy1 hR7Oy1 GQWkTE aIrO76') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('span', class_='aR7Oy1 bR7Oy1 vR7Oy1 RR7Oy1 hR7Oy1 GQWkTE aIrO76'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('h3', class_='aR7Oy1 yR7Oy1 MR7Oy1 UR7Oy1 nQWkTE CQWkTE RQWkTE _5QWkTE dLBOHl eLBOHl') is not None:
+            temp_tech_data.work_header = data.find_all("h3", class_='aR7Oy1 yR7Oy1 MR7Oy1 UR7Oy1 nQWkTE CQWkTE RQWkTE _5QWkTE dLBOHl eLBOHl')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('h3', class_='aR7Oy1 yR7Oy1 MR7Oy1 UR7Oy1 nQWkTE CQWkTE RQWkTE _5QWkTE dLBOHl eLBOHl'))
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_Belarusbank(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Belarusbank)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='article-grid__item col col-lg-12')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_Belarusbank, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='status-label') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='status-label'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('span', class_='link') is not None:
+            temp_tech_data.work_header = data.find_all('span', class_='link')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('span', class_='link'))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_BSB(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BSB)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='news-card__item')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_BSB, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='gray-color') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='gray-color'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('div', class_='font-24') is not None:
+            temp_tech_data.work_header = data.find_all('div', class_='font-24')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='font-24'))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_BTA(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BTA)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='news-grid__item')
+
+    for data in all_notif:
+        try:
+            temp_tech_data = TechData.TechData()
+            temp_tech_data.service_type = service_name
+            # Ссылка на новость
+            link_tag = data.find('a')
+            if link_tag is not None and link_tag.get('href') is not None:
+                temp_tech_data.link =  urljoin(LinkConst.Bank_BTA, link_tag.get('href'))
+            # Дата публикации
+            if data.find_all('span', class_='news-card__date') is not None:
+                universal_date = UniDate.UniversalDate(data.find_all('span', class_='news-card__date'))
+                temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+            # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+            if data.find_all('div', class_='news-card__title') is not None:
+                temp_tech_data.work_header = data.find_all('div', class_='news-card__title')[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='news-card__title'))
+            check_service_info(tech_data_list, temp_tech_data)
+        except Exception as e:
+            print(e)
+
+    return tech_data_list
+
+def parse_Bank_BankReshenii(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BankReshenii)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='page-promotion__item')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_BankReshenii, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='tag-label') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='tag-label'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('div', class_='card-sale__title') is not None:
+            temp_tech_data.work_header = data.find_all('div', class_='card-sale__title')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='card-sale__title'))
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_BELWEB(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BELWEB)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='card-elem__inner')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_BELWEB, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='card__text-desc') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='card__text-desc'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('div', class_='card__text-context') is not None:
+            temp_tech_data.work_header = data.find_all('div', class_='card__text-context')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='card__text-context'))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_BelAgro(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BelAgro)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='news-catalog__item news-catalog__item--lg')
+    all_notif += soup.find_all('a', href= [re.compile(r'^/about/press-tsentr/novosti/'), ''] )
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+
+        if data is not None and data.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_BelAgro, data.get('href'))
+            if temp_tech_data.link is None:
+                try:
+                    link_tag = data.find('a', class_='btn btn-full')
+                    if link_tag is not None and link_tag.get('href') is not None:
+                        temp_tech_data.link = urljoin(LinkConst.Bank_BELWEB, link_tag.get('href'))
+                except Exception as e:
+                    pass
+
+        # Дата публикации
+        if data.find_all('div', class_='data') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='data'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('div', class_='h4') is not None:
+            try:
+                temp_tech_data.work_header = data.find_all('div', class_='h4')[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='h4'))
+            except Exception as e:
+                pass
+            try:
+                temp_tech_data.work_header = data.find_all("p")[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('p'))
+            except Exception as e:
+                pass
+                try:
+                    temp_tech_data.work_header = data.find_all("h4")[0].text.strip()
+                    temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('h4'))
+                except Exception as e:
+                    pass
+
+        tech_data_list.append(temp_tech_data)
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_Belinvest(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Belinvest)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='press-newsList-item')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_Belinvest, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('span', class_='date openSansSemiBold') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('span', class_='date openSansSemiBold'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('a', class_='item-h3 openSansRegular') is not None:
+            temp_tech_data.work_header = data.find_all('a', class_='item-h3 openSansRegular')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('a', class_='item-h3 openSansRegular'))
+        # Описание новости (если есть)
+        if data.find_all('p', class_='item-p openSansRegular dots completed') is not None:
+            temp_tech_data.description = data.find_all('p', class_='item-p openSansRegular dots completed')[0].text.strip()
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_MTB(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_MTB)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('article', class_='news-article')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_MTB, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('time', class_='news-article__time') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('time', class_='news-article__time'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('span',class_='news-article__title') is not None:
+
+                temp_tech_data.work_header = data.find_all('span',class_="news-article__title")[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('span',class_='news-article__title'))
+
+        # Описание новости (если есть)
+        if data.find_all('p', class_='news-article__text') is not None:
+            temp_tech_data.description = data.find_all('p', class_='news-article__text')[0].text.strip()
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_Paritet(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Paritet)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('a', class_='news__item')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+
+        if data is not None and data.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_Paritet, data.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='news__date') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='news__date'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('p') is not None:
+            try:
+                temp_tech_data.work_header = data.find_all("p")[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('p'))
+            except Exception as e:
+                pass
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_Zepter(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Zepter)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='row row_col_2')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_Zepter, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='rc_title') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('div', class_='rc_title'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('span', class_='undecor') is not None:
+            temp_tech_data.work_header = data.find_all('span', class_='undecor')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('span', class_='undecor'))
+
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_Sberbank(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Sberbank)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('a', class_='NewsFeedElement')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        if data is not None and data.get('href') is not None:
+            temp_tech_data.link = urljoin(LinkConst.Bank_Sberbank, data.get('href'))
+        # Дата публикации
+        if data.find_all('div', class_='NewsFeedElement__data') is not None:
+            date = data.find_all('div', class_='NewsFeedElement__data')[0].text.strip()
+            date = date +' '+ str(datetime.datetime.now().year)
+            universal_date = UniDate.UniversalDate(date)
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('div', class_='NewsFeedElement__title') is not None:
+            temp_tech_data.work_header = data.find_all('div', class_='NewsFeedElement__title')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(
+                data.find_all('div', class_='NewsFeedElement__title'))
+
+        tech_data_list.append(temp_tech_data)
+        check_service_info(tech_data_list, temp_tech_data)
+
+    return tech_data_list
+
+def parse_Bank_Priorbank(service_name = 'service_name is null'):
+    tech_data_list = []
+    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Priorbank)
+    if page_source is None:
+        return
+
+    soup = BeautifulSoup(page_source, "lxml")
+
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='news-list__item')
+
+    for data in all_notif:
+        temp_tech_data = TechData.TechData()
+        temp_tech_data.service_type = service_name
+        # Ссылка на новость
+        link_tag = data.find('a')
+        if link_tag is not None and link_tag.get('href') is not None:
+            temp_tech_data.link =  urljoin(LinkConst.Bank_Priorbank, link_tag.get('href'))
+        # Дата публикации
+        if data.find_all('span') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('span'))
+            temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('a',class_='news-list__title-link') is not None:
+            temp_tech_data.work_header = data.find_all('a',class_="news-list__title-link")[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('a',class_='news-list__title-link'))
 
         check_service_info(tech_data_list, temp_tech_data)
 
