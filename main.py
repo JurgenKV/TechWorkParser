@@ -7,8 +7,8 @@ if __name__ == '__main__':
     timeStart = datetime.now().time().second
     all_tech_list = list()
     #all_tech_list.extend(Parsers.parse_ERIP('ЕРИП'))
-    # all_tech_list.extend(Parsers.parse_BFT('БФТ'))
-    all_tech_list.extend(Parsers.parse_BPC('БПЦ'))
+    all_tech_list.extend(Parsers.parse_BFT('БФТ'))
+    #all_tech_list.extend(Parsers.parse_BPC('БПЦ'))
     # all_tech_list.extend(Parsers.parse_MNS('МНС'))
     # all_tech_list.extend(Parsers.parse_OAIS('ОАИС'))
     # all_tech_list.extend(Parsers.parse_A1('A1')) # cringo

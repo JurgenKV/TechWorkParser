@@ -23,8 +23,21 @@ def is_contains_work_keywords(text):
             return True
     return False
 
+def is_contains_negative_keywords(text):
+    keywords = ['1234567']
+    if not text or not keywords:
+        return False
+
+    text = text.lower()
+    keywords = [keyword.lower() for keyword in keywords]
+
+    for keyword in keywords:
+        if keyword in text:
+            return True
+    return False
+
 def check_service_info(tech_data_list, temp_tech_data):
-    if is_contains_work_keywords(temp_tech_data.work_header):
+    if is_contains_work_keywords(temp_tech_data.work_header) and not is_contains_negative_keywords(temp_tech_data.work_header):
         tech_data_list.append(temp_tech_data)
     else:
         temp_tech_data.reset()
@@ -51,7 +64,7 @@ def parse_ERIP(service_name='service_name is null'):
             temp_tech_data.work_header = data.find_all('span', class_='news-title')[0].text.strip()
             temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('span', class_='news-title'))
 
-        tech_data_list.append(temp_tech_data)
+        check_service_info(tech_data_list, temp_tech_data)
     return tech_data_list
 
 def parse_BFT(service_name='service_name is null'):
@@ -71,10 +84,10 @@ def parse_BFT(service_name='service_name is null'):
             universal_date = UniDate.UniversalDate(date_span.text.strip())
             universal_date.parse_date_hard()
             temp_tech_data.publishing_date = universal_date.to_format()
-
-        date_span = data.find('h2', class_='blogpost_title')
-        if date_span is not None:
-            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(date_span.text)
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find('h2', class_='blogpost_title') is not None:
+            temp_tech_data.work_header = data.find('h2', class_='blogpost_title').text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find('h2', class_='blogpost_title'))
 
         title_span = data.find('p')
         if title_span is not None:
