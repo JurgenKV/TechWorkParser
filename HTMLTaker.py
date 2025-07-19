@@ -65,3 +65,17 @@ def get_request(link, service_name):
     except Exception as e:
         print(f" {service_name} Неизвестная ошибка:", e)
         return None
+
+def get_soup_page(link, soup_features = 'lxml'):
+    soup = None
+    try:
+        page_source = get_page_with_selenium(link)
+        if page_source is None:
+            print(f'{link} page_source is null')
+            return
+        soup = BeautifulSoup(page_source, soup_features)
+    except Exception as e:
+        print(e)
+    if soup is None:
+        print(f'{link} soup is null')
+    return soup

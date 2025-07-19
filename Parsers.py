@@ -29,32 +29,29 @@ def check_service_info(tech_data_list, temp_tech_data):
     else:
         temp_tech_data.reset()
 
-def parse_erip(service_name='service_name is null'):
+def parse_ERIP(service_name='service_name is null'):
     tech_data_list = []
-
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.ERIP)
-    if page_source is None:
+    soup = HTMLTaker.get_soup_page(LinkConst.ERIP, 'lxml')
+    if soup is None:
         return
 
-    soup = BeautifulSoup(page_source, "lxml")
-
-    all_notif = soup.find_all('a', class_='news-item')
+    all_notif = soup.find_all('a', class_='news-item swiper-slide swiper-slide-active')
     for data in all_notif:
         temp_tech_data = TechData.TechData()
         temp_tech_data.service_type = service_name
-
-        if data.get('href') is not None:
+        # Ссылка на новость
+        if data is not None and data.get('href') is not None:
             temp_tech_data.link = urljoin(LinkConst.ERIP, data.get('href'))
-
-        date_span = data.find('span', class_='date')
-        if date_span is not None:
-            universal_date = UniDate.UniversalDate(date_span.text.strip())
+        # Дата публикации
+        if data.find_all('span', class_='date') is not None:
+            universal_date = UniDate.UniversalDate(data.find_all('span', class_='date')[0].text.strip())
             universal_date.parse_date_hard()
             temp_tech_data.publishing_date = universal_date.to_format()
 
-        title_span = data.find('span', class_='news-title')
-        if title_span is not None:
-            temp_tech_data.description = title_span.text.strip()
+        # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+        if data.find_all('span', class_='news-title') is not None:
+            temp_tech_data.work_header = data.find_all('span', class_='news-title')[0].text.strip()
+            temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('span', class_='news-title'))
 
         tech_data_list.append(temp_tech_data)
     return tech_data_list
@@ -62,13 +59,9 @@ def parse_erip(service_name='service_name is null'):
 def parse_BFT(service_name='service_name is null'):
     tech_data_list = []
 
-    # Получаем HTML-код страницы через Selenium
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.BFT)
-    if page_source is None:
+    soup = HTMLTaker.get_soup_page(LinkConst.BFT, 'lxml')
+    if soup is None:
         return
-
-    # Парсим HTML с помощью BeautifulSoup
-    soup = BeautifulSoup(page_source, "lxml")
 
     all_notif = soup.find_all('div', class_='blog_post_preview rrrt format-standard')
     for data in all_notif:
@@ -94,19 +87,15 @@ def parse_BFT(service_name='service_name is null'):
         if title_span is not None:
             temp_tech_data.description = title_span.text.strip()
 
-        tech_data_list.append(temp_tech_data)
+        check_service_info(tech_data_list, temp_tech_data)
     return tech_data_list
 # gold template
 def parse_BPC(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.BPC)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.BPC, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='make_bet news_tab_item news-item s-5')
 
@@ -129,18 +118,13 @@ def parse_BPC(service_name = 'service_name is null'):
         if data.find_all('p', class_='preview-text') is not None:
             temp_tech_data.description = data.find_all('p', class_='preview-text')[0].text.strip()
 
-        tech_data_list.append(temp_tech_data)
+        check_service_info(tech_data_list, temp_tech_data)
 
     return tech_data_list
 
 def parse_MNS(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.MNS)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.MNS, 'lxml')
     if soup is None:
         return
 
@@ -189,12 +173,7 @@ def parse_MNS(service_name = 'service_name is null'):
 
 def parse_OAIS(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.OAIS)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.OAIS, 'lxml')
     if soup is None:
         return
 
@@ -250,12 +229,7 @@ def parse_MTS(service_name = 'service_name is null'):
 
 def parse_Life(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Life)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Life, 'lxml')
     if soup is None:
         return
 
@@ -282,12 +256,7 @@ def parse_Life(service_name = 'service_name is null'):
 
 def parse_Seventech(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Seventech)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Seventech, 'lxml')
     if soup is None:
         return
 
@@ -328,12 +297,7 @@ def parse_Beltelecom(service_name = 'service_name is null'):
 
 def parse_Delova9Seti(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Delova9Seti)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Delova9Seti, 'lxml')
     if soup is None:
         return
 
@@ -367,12 +331,7 @@ def parse_Delova9Seti(service_name = 'service_name is null'):
 
 def parse_Hoster(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Hoster)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Hoster, 'lxml')
     if soup is None:
         return
 
@@ -403,12 +362,7 @@ def parse_Hoster(service_name = 'service_name is null'):
 
 def parse_BeCloud(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.BeCloud)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.BeCloud, 'lxml')
     if soup is None:
         return
 
@@ -436,12 +390,7 @@ def parse_BeCloud(service_name = 'service_name is null'):
 
 def parse_Oplati(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Oplati)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Oplati, 'lxml')
     if soup is None:
         return
 
@@ -469,12 +418,7 @@ def parse_Oplati(service_name = 'service_name is null'):
 
 def parse_Kupala(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Kupala)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Kupala, 'lxml')
     if soup is None:
         return
 
@@ -502,14 +446,10 @@ def parse_Kupala(service_name = 'service_name is null'):
 
 def parse_BVFB(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.BVFB)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.BVFB, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='pl-0 col-12 col-sm-6 col-md-4 py-3 bb_dark_line d-flex flex-column justify-content-between')
 
@@ -535,14 +475,10 @@ def parse_BVFB(service_name = 'service_name is null'):
 
 def parse_NBRB(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.NBRB)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.NBRB, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('article', class_='n-article')
 
@@ -576,14 +512,10 @@ def parse_NBRB(service_name = 'service_name is null'):
 
 def parse_Bank_AlfaRu(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_AlfaRu)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_AlfaRu, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('li', class_='dLBOHl bLBOHl hLBOHl')
 
@@ -608,14 +540,10 @@ def parse_Bank_AlfaRu(service_name = 'service_name is null'):
 
 def parse_Bank_Belarusbank(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Belarusbank)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_Belarusbank, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='article-grid__item col col-lg-12')
 
@@ -641,14 +569,10 @@ def parse_Bank_Belarusbank(service_name = 'service_name is null'):
 
 def parse_Bank_BSB(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BSB)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_BSB, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='news-card__item')
 
@@ -674,14 +598,10 @@ def parse_Bank_BSB(service_name = 'service_name is null'):
 
 def parse_Bank_BTA(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BTA)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_BTA, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='news-grid__item')
 
@@ -709,14 +629,10 @@ def parse_Bank_BTA(service_name = 'service_name is null'):
 
 def parse_Bank_BankReshenii(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BankReshenii)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_BankReshenii, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='page-promotion__item')
 
@@ -741,14 +657,10 @@ def parse_Bank_BankReshenii(service_name = 'service_name is null'):
 
 def parse_Bank_BELWEB(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BELWEB)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_BELWEB, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='card-elem__inner')
 
@@ -774,14 +686,10 @@ def parse_Bank_BELWEB(service_name = 'service_name is null'):
 
 def parse_Bank_BelAgro(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_BelAgro)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_BelAgro, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='news-catalog__item news-catalog__item--lg')
     all_notif += soup.find_all('a', href= [re.compile(r'^/about/press-tsentr/novosti/'), ''] )
@@ -830,14 +738,10 @@ def parse_Bank_BelAgro(service_name = 'service_name is null'):
 
 def parse_Bank_Belinvest(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Belinvest)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_Belinvest, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='press-newsList-item')
 
@@ -866,14 +770,10 @@ def parse_Bank_Belinvest(service_name = 'service_name is null'):
 
 def parse_Bank_MTB(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_MTB)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_MTB, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('article', class_='news-article')
 
@@ -904,14 +804,10 @@ def parse_Bank_MTB(service_name = 'service_name is null'):
 
 def parse_Bank_Paritet(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Paritet)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_Paritet, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('a', class_='news__item')
 
@@ -939,14 +835,10 @@ def parse_Bank_Paritet(service_name = 'service_name is null'):
 
 def parse_Bank_Zepter(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Zepter)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_Zepter, 'lxml')
     if soup is None:
         return
+
     # item новости
     all_notif = soup.find_all('div', class_='row row_col_2')
 
@@ -972,12 +864,7 @@ def parse_Bank_Zepter(service_name = 'service_name is null'):
 
 def parse_Bank_Sberbank(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Sberbank)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_Sberbank, 'lxml')
     if soup is None:
         return
     # item новости
@@ -1008,12 +895,7 @@ def parse_Bank_Sberbank(service_name = 'service_name is null'):
 
 def parse_Bank_Priorbank(service_name = 'service_name is null'):
     tech_data_list = []
-    page_source = HTMLTaker.get_page_with_selenium(LinkConst.Bank_Priorbank)
-    if page_source is None:
-        return
-
-    soup = BeautifulSoup(page_source, "lxml")
-
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_Priorbank, 'lxml')
     if soup is None:
         return
     # item новости
