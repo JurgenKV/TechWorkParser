@@ -37,11 +37,9 @@ def parse_ERIP(service_name='service_name is null'):
 
     all_notif = soup.find_all('a', class_='news-item swiper-slide swiper-slide-active')
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        if data is not None and data.get('href') is not None:
-            temp_tech_data.link = urljoin(LinkConst.ERIP, data.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_data(temp_tech_data, data, LinkConst.ERIP,'href')
         # Дата публикации
         if data.find_all('span', class_='date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span', class_='date')[0].text.strip())
@@ -65,13 +63,8 @@ def parse_BFT(service_name='service_name is null'):
 
     all_notif = soup.find_all('div', class_='blog_post_preview rrrt format-standard')
     for data in all_notif:
-
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
-
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link = urljoin(LinkConst.BFT, link_tag.get('href'))
+        temp_tech_data = TechData.TechData(service_name)
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.BFT, 'a', 'href')
 
         date_span = data.find('span', class_='post_date')
         if date_span is not None:
@@ -100,12 +93,9 @@ def parse_BPC(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='make_bet news_tab_item news-item s-5')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.BPC, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.BPC ,'a', 'href')
         # Дата публикации
         if data.find_all('div', class_='news_item_date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='news_item_date'))
@@ -131,12 +121,8 @@ def parse_MNS(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='latest-news row mx-n3 mt-n3')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
-
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link = urljoin(LinkConst.MNS, link_tag.get('href'))
+        temp_tech_data = TechData.TechData(service_name)
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.MNS, 'a', 'href')
 
         if data.find_all('div', class_='latest-news__date mb-2') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='latest-news__date mb-2'))
@@ -180,12 +166,8 @@ def parse_OAIS(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='su-post')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
-
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.OAIS, link_tag.get('href'))
+        temp_tech_data = TechData.TechData(service_name)
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.OAIS, 'a', 'href')
 
         if data.find_all('div', class_='su-post-meta') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='su-post-meta'))
@@ -203,8 +185,7 @@ def parse_OAIS(service_name = 'service_name is null'):
 
 def parse_A1(service_name = 'service_name is null'):
     tech_data_list = list()
-    temp_tech_data = TechData.TechData()
-    temp_tech_data.service_type = service_name
+    temp_tech_data = TechData.TechData(service_name)
     temp_tech_data.work_header = "Работы каждый день, 99%"
     temp_tech_data.description = "Работы каждый день, 99%"
     temp_tech_data.link = LinkConst.A1
@@ -216,8 +197,7 @@ def parse_A1(service_name = 'service_name is null'):
 
 def parse_MTS(service_name = 'service_name is null'):
     tech_data_list = list()
-    temp_tech_data = TechData.TechData()
-    temp_tech_data.service_type = service_name
+    temp_tech_data = TechData.TechData(service_name)
     temp_tech_data.work_header = "Работы каждый день, 99%"
     temp_tech_data.description = "Работы каждый день, 99%"
     temp_tech_data.link = LinkConst.MTS
@@ -236,11 +216,9 @@ def parse_Life(service_name = 'service_name is null'):
     all_notif = soup.find_all('a', class_='NewsCard_link__j24Y5')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
-        if data is not None and data.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Life, data.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_data(temp_tech_data, data, LinkConst.Life,'href')
 
         if data.find_all('span', class_='NewsCard_date__ANy1J') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span', class_='NewsCard_date__ANy1J'))
@@ -263,12 +241,9 @@ def parse_Seventech(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='elementor-post__card')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Seventech, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Seventech, 'a', 'href')
 
         if data.find_all('span', class_='elementor-post-date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span', class_='elementor-post-date'))
@@ -284,8 +259,7 @@ def parse_Seventech(service_name = 'service_name is null'):
 
 def parse_Beltelecom(service_name = 'service_name is null'):
     tech_data_list = list()
-    temp_tech_data = TechData.TechData()
-    temp_tech_data.service_type = service_name
+    temp_tech_data = TechData.TechData(service_name)
     temp_tech_data.work_header = "Работы каждый день, 90%"
     temp_tech_data.description = "Работы каждый день, 90%"
     temp_tech_data.link = LinkConst.Beltelecom
@@ -304,12 +278,9 @@ def parse_Delova9Seti(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='card y_2025 col-md-4 col-sm-6 col-12')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Delova9Seti, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Delova9Seti, 'a', 'href')
 
         if data.find_all('p', class_='text-small text-gray mb-4') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('p', class_='text-small text-gray mb-4'))
@@ -338,11 +309,9 @@ def parse_Hoster(service_name = 'service_name is null'):
     all_notif = soup.find_all('a', class_='m-mediacenter-item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
-        if data is not None and data.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Hoster, data.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_data(temp_tech_data, data, LinkConst.Hoster,'href')
 
         if data.find_all('span', class_='m-mediacenter-item-date m-font-b2') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span', class_='m-mediacenter-item-date m-font-b2'))
@@ -369,12 +338,8 @@ def parse_BeCloud(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='news__item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
-
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.BeCloud, link_tag.get('href'))
+        temp_tech_data = TechData.TechData(service_name)
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.BeCloud, 'a', 'href')
 
         if data.find_all('div', class_='news-date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='news-date'))
@@ -397,12 +362,9 @@ def parse_Oplati(service_name = 'service_name is null'):
     all_notif = soup.find_all('section', class_='opacity')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Oplati, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Oplati, 'a', 'href')
 
         if data.find_all('div', class_='data') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='data'))
@@ -425,12 +387,9 @@ def parse_Kupala(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='news-item js-hover')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Kupala, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Kupala, 'a', 'href')
 
         if data.find_all('div', class_='date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='date'))
@@ -454,12 +413,9 @@ def parse_BVFB(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='pl-0 col-12 col-sm-6 col-md-4 py-3 bb_dark_line d-flex flex-column justify-content-between')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.BVFB, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.BVFB, 'a', 'href')
         # Дата публикации
         if data.find_all('small', class_='text-muted') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('small', class_='text-muted'))
@@ -483,12 +439,9 @@ def parse_NBRB(service_name = 'service_name is null'):
     all_notif = soup.find_all('article', class_='n-article')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.NBRB, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.NBRB, 'a', 'href')
         # Дата публикации
         if data.find_all('div', class_='n-date') is not None:
             try:
@@ -520,12 +473,9 @@ def parse_Bank_AlfaRu(service_name = 'service_name is null'):
     all_notif = soup.find_all('li', class_='dLBOHl bLBOHl hLBOHl')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_AlfaRu, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_AlfaRu, 'a', 'href')
         # Дата публикации
         if data.find_all('span', class_='aR7Oy1 bR7Oy1 vR7Oy1 RR7Oy1 hR7Oy1 GQWkTE aIrO76') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span', class_='aR7Oy1 bR7Oy1 vR7Oy1 RR7Oy1 hR7Oy1 GQWkTE aIrO76'))
@@ -548,12 +498,9 @@ def parse_Bank_Belarusbank(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='article-grid__item col col-lg-12')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_Belarusbank, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_Belarusbank, 'a', 'href')
         # Дата публикации
         if data.find_all('div', class_='status-label') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='status-label'))
@@ -577,12 +524,9 @@ def parse_Bank_BSB(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='news-card__item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_BSB, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_BSB, 'a', 'href')
         # Дата публикации
         if data.find_all('div', class_='gray-color') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='gray-color'))
@@ -607,12 +551,9 @@ def parse_Bank_BTA(service_name = 'service_name is null'):
 
     for data in all_notif:
         try:
-            temp_tech_data = TechData.TechData()
-            temp_tech_data.service_type = service_name
+            temp_tech_data = TechData.TechData(service_name)
             # Ссылка на новость
-            link_tag = data.find('a')
-            if link_tag is not None and link_tag.get('href') is not None:
-                temp_tech_data.link =  urljoin(LinkConst.Bank_BTA, link_tag.get('href'))
+            temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_BTA, 'a', 'href')
             # Дата публикации
             if data.find_all('span', class_='news-card__date') is not None:
                 universal_date = UniDate.UniversalDate(data.find_all('span', class_='news-card__date'))
@@ -637,12 +578,9 @@ def parse_Bank_BankReshenii(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='page-promotion__item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_BankReshenii, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_BankReshenii, 'a', 'href')
         # Дата публикации
         if data.find_all('div', class_='tag-label') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='tag-label'))
@@ -665,12 +603,9 @@ def parse_Bank_BELWEB(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='card-elem__inner')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_BELWEB, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_BELWEB, 'a', 'href')
         # Дата публикации
         if data.find_all('div', class_='card__text-desc') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='card__text-desc'))
@@ -694,8 +629,7 @@ def parse_Bank_BelAgro(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='news-catalog__item news-catalog__item--lg')
     all_notif += soup.find_all('a', href= [re.compile(r'^/about/press-tsentr/novosti/'), ''] )
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
 
         if data is not None and data.get('href') is not None:
@@ -746,12 +680,9 @@ def parse_Bank_Belinvest(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='press-newsList-item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_Belinvest, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_Belinvest, 'a', 'href')
         # Дата публикации
         if data.find_all('span', class_='date openSansSemiBold') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span', class_='date openSansSemiBold'))
@@ -778,12 +709,9 @@ def parse_Bank_MTB(service_name = 'service_name is null'):
     all_notif = soup.find_all('article', class_='news-article')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_MTB, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_MTB, 'a', 'href')
         # Дата публикации
         if data.find_all('time', class_='news-article__time') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('time', class_='news-article__time'))
@@ -812,12 +740,9 @@ def parse_Bank_Paritet(service_name = 'service_name is null'):
     all_notif = soup.find_all('a', class_='news__item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-
-        if data is not None and data.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_Paritet, data.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_data(temp_tech_data, data, LinkConst.Bank_Paritet,'href')
         # Дата публикации
         if data.find_all('div', class_='news__date') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='news__date'))
@@ -843,12 +768,10 @@ def parse_Bank_Zepter(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='row row_col_2')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_Zepter, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_Zepter, 'a', 'href')
+
         # Дата публикации
         if data.find_all('div', class_='rc_title') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('div', class_='rc_title'))
@@ -871,11 +794,9 @@ def parse_Bank_Sberbank(service_name = 'service_name is null'):
     all_notif = soup.find_all('a', class_='NewsFeedElement')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        if data is not None and data.get('href') is not None:
-            temp_tech_data.link = urljoin(LinkConst.Bank_Sberbank, data.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_data(temp_tech_data, data, LinkConst.Bank_Sberbank,'href')
         # Дата публикации
         if data.find_all('div', class_='NewsFeedElement__data') is not None:
             date = data.find_all('div', class_='NewsFeedElement__data')[0].text.strip()
@@ -902,12 +823,9 @@ def parse_Bank_Priorbank(service_name = 'service_name is null'):
     all_notif = soup.find_all('div', class_='news-list__item')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
         # Ссылка на новость
-        link_tag = data.find('a')
-        if link_tag is not None and link_tag.get('href') is not None:
-            temp_tech_data.link =  urljoin(LinkConst.Bank_Priorbank, link_tag.get('href'))
+        temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_Priorbank, 'a', 'href')
         # Дата публикации
         if data.find_all('span') is not None:
             universal_date = UniDate.UniversalDate(data.find_all('span'))
