@@ -10,12 +10,12 @@ class TechData:
     link = ''
 
     def __init__(self, service_name = ''):
-        service_type = service_name
-        publishing_date = ''
-        date_of_work = ''
-        work_header = ''
-        description = ''
-        link = ''
+        self.service_type = service_name
+        self.publishing_date = ''
+        self.date_of_work = ''
+        self.work_header = ''
+        self.description = ''
+        self.link = ''
 
     def reset(self):
         service_type = ''

@@ -24,7 +24,7 @@ def is_contains_work_keywords(text):
     return False
 
 def is_contains_negative_keywords(text):
-    keywords = ['1234567']
+    keywords = ['123456789']
     if not text or not keywords:
         return False
 
@@ -145,13 +145,12 @@ def parse_MNS(service_name = 'service_name is null'):
             temp_tech_data.work_header = data.find_all(class_="latest-news__title mb-4 d-block fs-20")[0].text.strip()
             # temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('h3'))
 
-        tech_data_list.append(temp_tech_data)
+        check_service_info(tech_data_list, temp_tech_data)
 
     all_notif = soup.find_all('div', class_='item-list-news')
 
     for data in all_notif:
-        temp_tech_data = TechData.TechData()
-        temp_tech_data.service_type = service_name
+        temp_tech_data = TechData.TechData(service_name)
 
         link_tag = data.find('a')
         if link_tag is not None and link_tag.get('href') is not None:
