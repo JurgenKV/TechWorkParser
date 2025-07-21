@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.ie.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -23,6 +24,7 @@ chrome_options.add_argument("--disable-dev-shm-usage")
 chrome_options.add_argument(
     "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
 
+WEB_DRIVER: WebDriver
 
 def initialize_driver():
     try:
@@ -31,22 +33,25 @@ def initialize_driver():
         f.close()
     except Exception as e:
         print(e)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
-    return driver
+    global WEB_DRIVER
+    WEB_DRIVER = webdriver.Chrome(service=service, options=chrome_options)
+
+def quit_driver():
+    WEB_DRIVER.quit()
 
 def get_page_with_selenium(url, timeout=20):
     try:
-        driver = initialize_driver()
-        driver.get(url)
+        #driver = initialize_driver()
+        WEB_DRIVER.get(url)
 
         # Ждём, пока страница полностью загрузится
-        WebDriverWait(driver, timeout).until(
+        WebDriverWait(WEB_DRIVER, timeout).until(
             EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
 
         # Возвращаем HTML-код страницы
-        page_source = driver.page_source
-        driver.quit()
+        page_source = WEB_DRIVER.page_source
+        #WEB_DRIVER.quit()
         return page_source
 
     except Exception as e:
