@@ -11,7 +11,7 @@ import UniDate
 import LinkConst
 import WorkFilter
 
-def parsing_all_pages():
+def get_all_parsing_data():
     print(datetime.datetime.now().time())
     all_tech_list = list()
     HTMLTaker.initialize_driver()
@@ -57,10 +57,7 @@ def parsing_all_pages():
         # print(f"Описание: {notif.description}")
         # print(f"{notif.service_type} -- {notif.publishing_date}")
         #print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header}")
-    filtered = WorkFilter.get_works_by_period(all_tech_list, 4)
-    filtered = WorkFilter.sort_by_nearest_work(filtered)
-    for notif in filtered:
-        print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
+    return all_tech_list
 
 def is_contains_work_keywords(text):
     keywords = ['работы','технич','технологич', 'недоступ', 'планов']
