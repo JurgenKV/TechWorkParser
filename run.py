@@ -8,6 +8,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 
 import Parsers
+import TG_Bot.config
 import WorkFilter
 from LOG import setup_logger
 from TechData import TechData
@@ -18,17 +19,7 @@ from TG_Bot.sender import send_shutdown_message
 from TG_Bot.sender import send_startup_message
 import LOG
 
-def get_token():
-    token = ''
-    try:
-        f = open('TG_Bot\\TG_TOKEN.txt', 'r')
-        token = f.readline().strip()
-        f.close()
-    except Exception as e:
-        LOG.error(str(e))
-    return str(token)
-
-bot = Bot(token=get_token())
+bot = Bot(token=TG_Bot.config.TG_BOT_TOKEN)
 disp = Dispatcher(storage=MemoryStorage())
 
 async def main():

@@ -3,6 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 
 GROUP_CHAT_ID = '-1002687229910'
+TG_BOT_TOKEN = 'ADD_TOken'
 def get_token():
     token = ''
     try:
