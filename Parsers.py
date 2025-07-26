@@ -15,40 +15,40 @@ def get_all_parsing_data():
     print(datetime.datetime.now().time())
     all_tech_list = list()
     HTMLTaker.initialize_driver()
-    all_tech_list.extend(parse_ERIP('ЕРИП'))
+    # all_tech_list.extend(parse_ERIP('ЕРИП'))
     all_tech_list.extend(parse_BFT('БФТ'))
-    all_tech_list.extend(parse_BPC('БПЦ'))
-    all_tech_list.extend(parse_MNS('МНС'))
-    all_tech_list.extend(parse_OAIS('ОАИС'))
-    all_tech_list.extend(parse_A1('A1'))  # cringo
-    all_tech_list.extend(parse_MTS('МТС'))  # cringo
-    all_tech_list.extend(parse_Life('Life'))
-    all_tech_list.extend(parse_Seventech('Seventech'))
-    all_tech_list.extend(parse_Beltelecom('Beltelecom'))  # cringo
-    all_tech_list.extend(parse_Delova9Seti('Деловая Сеть'))
-    all_tech_list.extend(parse_Hoster('Hoster'))
-    all_tech_list.extend(parse_BeCloud('BeCloud'))
-    all_tech_list.extend(parse_Oplati('Оплати'))
-    all_tech_list.extend(parse_Kupala('Kupala'))
-    all_tech_list.extend(parse_BVFB('БВФБ'))
-    all_tech_list.extend(parse_NBRB('НБРБ'))
-    all_tech_list.extend(parse_Bank_AlfaRu('Альфа-Банк Россия'))
-    all_tech_list.extend(parse_Bank_Belarusbank('Беларусьбанк'))
-    all_tech_list.extend(parse_Bank_BSB('БСБ Банк'))
-    all_tech_list.extend(parse_Bank_BTA('БТА Банк'))
-    all_tech_list.extend(parse_Bank_BankReshenii('Банк Решений'))
-    all_tech_list.extend(parse_Bank_BELWEB('БЕЛВЕБ Банк'))
-    all_tech_list.extend(parse_Bank_BelAgro('Белагропромбанк'))
-    all_tech_list.extend(parse_Bank_Belinvest('Белинвестбанк'))  # need selenium timeout >20
-    all_tech_list.extend(parse_Bank_MTB('МТБ Банк'))
-    all_tech_list.extend(parse_Bank_Paritet('Паритетбанк'))
-    all_tech_list.extend(parse_Bank_Zepter('Цептер Банк'))
-    all_tech_list.extend(parse_Bank_Sberbank('Сбербанк'))  # problem with year after NY
-    all_tech_list.extend(parse_Bank_Priorbank('Приорбанк'))
+    # all_tech_list.extend(parse_BPC('БПЦ'))
+    # all_tech_list.extend(parse_MNS('МНС'))
+    # all_tech_list.extend(parse_OAIS('ОАИС'))
+    # all_tech_list.extend(parse_A1('A1'))  # cringo
+    # all_tech_list.extend(parse_MTS('МТС'))  # cringo
+    # all_tech_list.extend(parse_Life('Life'))
+    # all_tech_list.extend(parse_Seventech('Seventech'))
+    # all_tech_list.extend(parse_Beltelecom('Beltelecom'))  # cringo
+    # all_tech_list.extend(parse_Delova9Seti('Деловая Сеть'))
+    # all_tech_list.extend(parse_Hoster('Hoster'))
+    # all_tech_list.extend(parse_BeCloud('BeCloud'))
+    # all_tech_list.extend(parse_Oplati('Оплати'))
+    # all_tech_list.extend(parse_Kupala('Kupala'))
+    # all_tech_list.extend(parse_BVFB('БВФБ'))
+    # all_tech_list.extend(parse_NBRB('НБРБ'))
+    # all_tech_list.extend(parse_Bank_AlfaRu('Альфа-Банк Россия'))
+    # all_tech_list.extend(parse_Bank_Belarusbank('Беларусьбанк'))
+    # all_tech_list.extend(parse_Bank_BSB('БСБ Банк'))
+    # all_tech_list.extend(parse_Bank_BTA('БТА Банк'))
+    # all_tech_list.extend(parse_Bank_BankReshenii('Банк Решений'))
+    # all_tech_list.extend(parse_Bank_BELWEB('БЕЛВЕБ Банк'))
+    # all_tech_list.extend(parse_Bank_BelAgro('Белагропромбанк'))
+    # all_tech_list.extend(parse_Bank_Belinvest('Белинвестбанк'))  # need selenium timeout >20
+    # all_tech_list.extend(parse_Bank_MTB('МТБ Банк'))
+    # all_tech_list.extend(parse_Bank_Paritet('Паритетбанк'))
+    # all_tech_list.extend(parse_Bank_Zepter('Цептер Банк'))
+    # all_tech_list.extend(parse_Bank_Sberbank('Сбербанк'))  # problem with year after NY
+    # all_tech_list.extend(parse_Bank_Priorbank('Приорбанк'))
     HTMLTaker.quit_driver()
 
     print(datetime.datetime.now().time())
-    #for notif in all_tech_list:
+    for notif in all_tech_list:
         # print(f"Сервис: {notif.service_type}")
         # print(f"Дата работы: {notif.date_of_work}")
         # print(f"Дата публикации: {notif.publishing_date}")
@@ -56,7 +56,7 @@ def get_all_parsing_data():
         # print(f"Ссылка: {notif.link}")
         # print(f"Описание: {notif.description}")
         # print(f"{notif.service_type} -- {notif.publishing_date}")
-        #print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header}")
+        print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
     return all_tech_list
 
 def is_contains_work_keywords(text):
@@ -130,7 +130,9 @@ def parse_BFT(service_name='service_name is null'):
     for data in all_notif:
         try:
             temp_tech_data = TechData.TechData(service_name)
-            temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.BFT, 'a', 'href')
+            href_data = data.find('h2', class_='blogpost_title')
+            if href_data is not None:
+                temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, href_data, LinkConst.BFT, 'a', 'href')
 
             date_span = data.find('span', class_='post_date')
             if date_span is not None:
@@ -263,8 +265,8 @@ def parse_OAIS(service_name = 'service_name is null'):
 def parse_A1(service_name = 'service_name is null'):
     tech_data_list = list()
     temp_tech_data = TechData.TechData(service_name)
-    temp_tech_data.work_header = "Работы каждый день, 99%"
-    temp_tech_data.description = "Работы каждый день, 99%"
+    temp_tech_data.work_header = "Работы каждый день, лучше перепроверить"
+    temp_tech_data.description = "Работы каждый день, лучше перепроверить"
     temp_tech_data.link = LinkConst.A1
     current_date = datetime.datetime.now()
     temp_tech_data.publishing_date = current_date.strftime("%d.%m.%Y")
@@ -275,8 +277,8 @@ def parse_A1(service_name = 'service_name is null'):
 def parse_MTS(service_name = 'service_name is null'):
     tech_data_list = list()
     temp_tech_data = TechData.TechData(service_name)
-    temp_tech_data.work_header = "Работы каждый день, 99%"
-    temp_tech_data.description = "Работы каждый день, 99%"
+    temp_tech_data.work_header = "Работы каждый день, лучше перепроверить"
+    temp_tech_data.description = "Работы каждый день, лучше перепроверить"
     temp_tech_data.link = LinkConst.MTS
     current_date = datetime.datetime.now()
     temp_tech_data.publishing_date = current_date.strftime("%d.%m.%Y")
@@ -344,8 +346,8 @@ def parse_Seventech(service_name = 'service_name is null'):
 def parse_Beltelecom(service_name = 'service_name is null'):
     tech_data_list = list()
     temp_tech_data = TechData.TechData(service_name)
-    temp_tech_data.work_header = "Работы каждый день, 90%"
-    temp_tech_data.description = "Работы каждый день, 90%"
+    temp_tech_data.work_header = "Работы почти каждый день, лучше перепроверить"
+    temp_tech_data.description = "Работы почти каждый день, лучше перепроверить"
     temp_tech_data.link = LinkConst.Beltelecom
     current_date = datetime.datetime.now()
     temp_tech_data.publishing_date = current_date.strftime("%d.%m.%Y")
