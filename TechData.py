@@ -1,5 +1,5 @@
 from urllib.parse import urljoin
-
+import LOG
 
 class TechData:
     service_type = ''
@@ -45,6 +45,7 @@ class TechData:
         except Exception as e:
             print(e)
             temp_tech_data.link = 'Error get_news_link_from_tag'
+            LOG.error(str(e))
         return temp_tech_data
 
     def get_news_link_from_data(temp_tech_data, data, link, get_tag ):
@@ -54,4 +55,5 @@ class TechData:
         except Exception as e:
             print(e)
             temp_tech_data.link = 'Error get_news_link_from_tag'
+            LOG.error(str(e))
         return temp_tech_data

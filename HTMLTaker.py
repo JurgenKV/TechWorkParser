@@ -8,6 +8,8 @@ from selenium.webdriver.ie.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+import LOG
+
 HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -33,6 +35,7 @@ def initialize_driver():
         f.close()
     except Exception as e:
         print(e)
+        LOG.error(str(e))
     global WEB_DRIVER
     WEB_DRIVER = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -55,6 +58,7 @@ def get_page_with_selenium(url, timeout=20):
         return page_source
 
     except Exception as e:
+        LOG.error("Ошибка при загрузке страницы:" + str(e))
         print("Ошибка при загрузке страницы:", e)
         return None
 
@@ -66,8 +70,10 @@ def get_request(link, service_name):
 
     except requests.exceptions.RequestException as e:
         print(f"{service_name} Ошибка при выполнении запроса:", e)
+        LOG.error(f"{service_name} Ошибка при выполнении запроса:" + str(e))
         return None
     except Exception as e:
+        LOG.error(f"{service_name} Неизвестная ошибка:" + str(e))
         print(f" {service_name} Неизвестная ошибка:", e)
         return None
 
@@ -77,10 +83,13 @@ def get_soup_page(link, soup_features = 'lxml'):
         page_source = get_page_with_selenium(link)
         if page_source is None:
             print(f'{link} page_source is null')
+            LOG.error(f'{link} page_source is null')
             return
         soup = BeautifulSoup(page_source, soup_features)
     except Exception as e:
         print(e)
+        LOG.error(f'{str(e)}')
     if soup is None:
         print(f'{link} soup is null')
+        LOG.error(f'{link} soup is null')
     return soup

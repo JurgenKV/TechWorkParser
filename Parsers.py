@@ -10,45 +10,48 @@ import TechData
 import UniDate
 import LinkConst
 import WorkFilter
+import LOG
 
 def get_all_parsing_data():
     print(datetime.datetime.now().time())
+    LOG.info(str(datetime.datetime.now().time()))
     all_tech_list = list()
     HTMLTaker.initialize_driver()
-    # all_tech_list.extend(parse_ERIP('ЕРИП'))
+    all_tech_list.extend(parse_ERIP('ЕРИП'))
     all_tech_list.extend(parse_BFT('БФТ'))
-    # all_tech_list.extend(parse_BPC('БПЦ'))
-    # all_tech_list.extend(parse_MNS('МНС'))
-    # all_tech_list.extend(parse_OAIS('ОАИС'))
-    # all_tech_list.extend(parse_A1('A1'))  # cringo
-    # all_tech_list.extend(parse_MTS('МТС'))  # cringo
-    # all_tech_list.extend(parse_Life('Life'))
-    # all_tech_list.extend(parse_Seventech('Seventech'))
-    # all_tech_list.extend(parse_Beltelecom('Beltelecom'))  # cringo
-    # all_tech_list.extend(parse_Delova9Seti('Деловая Сеть'))
-    # all_tech_list.extend(parse_Hoster('Hoster'))
-    # all_tech_list.extend(parse_BeCloud('BeCloud'))
-    # all_tech_list.extend(parse_Oplati('Оплати'))
-    # all_tech_list.extend(parse_Kupala('Kupala'))
-    # all_tech_list.extend(parse_BVFB('БВФБ'))
-    # all_tech_list.extend(parse_NBRB('НБРБ'))
-    # all_tech_list.extend(parse_Bank_AlfaRu('Альфа-Банк Россия'))
-    # all_tech_list.extend(parse_Bank_Belarusbank('Беларусьбанк'))
-    # all_tech_list.extend(parse_Bank_BSB('БСБ Банк'))
-    # all_tech_list.extend(parse_Bank_BTA('БТА Банк'))
-    # all_tech_list.extend(parse_Bank_BankReshenii('Банк Решений'))
-    # all_tech_list.extend(parse_Bank_BELWEB('БЕЛВЕБ Банк'))
-    # all_tech_list.extend(parse_Bank_BelAgro('Белагропромбанк'))
-    # all_tech_list.extend(parse_Bank_Belinvest('Белинвестбанк'))  # need selenium timeout >20
-    # all_tech_list.extend(parse_Bank_MTB('МТБ Банк'))
-    # all_tech_list.extend(parse_Bank_Paritet('Паритетбанк'))
-    # all_tech_list.extend(parse_Bank_Zepter('Цептер Банк'))
-    # all_tech_list.extend(parse_Bank_Sberbank('Сбербанк'))  # problem with year after NY
-    # all_tech_list.extend(parse_Bank_Priorbank('Приорбанк'))
+    all_tech_list.extend(parse_BPC('БПЦ'))
+    all_tech_list.extend(parse_MNS('МНС'))
+    all_tech_list.extend(parse_OAIS('ОАИС'))
+    all_tech_list.extend(parse_A1('A1'))  # cringo
+    all_tech_list.extend(parse_MTS('МТС'))  # cringo
+    all_tech_list.extend(parse_Life('Life'))
+    all_tech_list.extend(parse_Seventech('Seventech'))
+    all_tech_list.extend(parse_Beltelecom('Beltelecom'))  # cringo
+    all_tech_list.extend(parse_Delova9Seti('Деловая Сеть'))
+    all_tech_list.extend(parse_Hoster('Hoster'))
+    all_tech_list.extend(parse_BeCloud('BeCloud'))
+    all_tech_list.extend(parse_Oplati('Оплати'))
+    all_tech_list.extend(parse_Kupala('Kupala'))
+    all_tech_list.extend(parse_BVFB('БВФБ'))
+    all_tech_list.extend(parse_NBRB('НБРБ'))
+    all_tech_list.extend(parse_Bank_AlfaRu('Альфа-Банк Россия'))
+    all_tech_list.extend(parse_Bank_Belarusbank('Беларусьбанк'))
+    all_tech_list.extend(parse_Bank_BSB('БСБ Банк'))
+    all_tech_list.extend(parse_Bank_BTA('БТА Банк'))
+    all_tech_list.extend(parse_Bank_BankReshenii('Банк Решений'))
+    all_tech_list.extend(parse_Bank_BELWEB('БЕЛВЕБ Банк'))
+    all_tech_list.extend(parse_Bank_BelAgro('Белагропромбанк'))
+    all_tech_list.extend(parse_Bank_Belinvest('Белинвестбанк'))  # need selenium timeout >20
+    all_tech_list.extend(parse_Bank_MTB('МТБ Банк'))
+    all_tech_list.extend(parse_Bank_Paritet('Паритетбанк'))
+    all_tech_list.extend(parse_Bank_Zepter('Цептер Банк'))
+    all_tech_list.extend(parse_Bank_Sberbank('Сбербанк'))  # problem with year after NY
+    all_tech_list.extend(parse_Bank_Priorbank('Приорбанк'))
     HTMLTaker.quit_driver()
 
     print(datetime.datetime.now().time())
-    for notif in all_tech_list:
+    LOG.info(str(datetime.datetime.now().time()))
+    # for notif in all_tech_list:
         # print(f"Сервис: {notif.service_type}")
         # print(f"Дата работы: {notif.date_of_work}")
         # print(f"Дата публикации: {notif.publishing_date}")
@@ -56,7 +59,7 @@ def get_all_parsing_data():
         # print(f"Ссылка: {notif.link}")
         # print(f"Описание: {notif.description}")
         # print(f"{notif.service_type} -- {notif.publishing_date}")
-        print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
+        # print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
     return all_tech_list
 
 def is_contains_work_keywords(text):
@@ -116,6 +119,7 @@ def parse_ERIP(service_name='service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
 
     return tech_data_list
 
@@ -151,6 +155,7 @@ def parse_BFT(service_name='service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 # gold template
 def parse_BPC(service_name = 'service_name is null'):
@@ -182,6 +187,7 @@ def parse_BPC(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_MNS(service_name = 'service_name is null'):
@@ -209,6 +215,7 @@ def parse_MNS(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     all_notif = soup.find_all('div', class_='item-list-news')
 
     for data in all_notif:
@@ -230,6 +237,7 @@ def parse_MNS(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_OAIS(service_name = 'service_name is null'):
@@ -259,14 +267,14 @@ def parse_OAIS(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_A1(service_name = 'service_name is null'):
     tech_data_list = list()
     temp_tech_data = TechData.TechData(service_name)
-    temp_tech_data.work_header = "Работы каждый день, лучше перепроверить"
-    temp_tech_data.description = "Работы каждый день, лучше перепроверить"
+    temp_tech_data.work_header = "Работы каждый день"
+    temp_tech_data.description = "Лучше перепроверить"
     temp_tech_data.link = LinkConst.A1
     current_date = datetime.datetime.now()
     temp_tech_data.publishing_date = current_date.strftime("%d.%m.%Y")
@@ -277,8 +285,8 @@ def parse_A1(service_name = 'service_name is null'):
 def parse_MTS(service_name = 'service_name is null'):
     tech_data_list = list()
     temp_tech_data = TechData.TechData(service_name)
-    temp_tech_data.work_header = "Работы каждый день, лучше перепроверить"
-    temp_tech_data.description = "Работы каждый день, лучше перепроверить"
+    temp_tech_data.work_header = "Работы каждый день"
+    temp_tech_data.description = "Лучше перепроверить"
     temp_tech_data.link = LinkConst.MTS
     current_date = datetime.datetime.now()
     temp_tech_data.publishing_date = current_date.strftime("%d.%m.%Y")
@@ -312,6 +320,7 @@ def parse_Life(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Seventech(service_name = 'service_name is null'):
@@ -340,14 +349,14 @@ def parse_Seventech(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Beltelecom(service_name = 'service_name is null'):
     tech_data_list = list()
     temp_tech_data = TechData.TechData(service_name)
-    temp_tech_data.work_header = "Работы почти каждый день, лучше перепроверить"
-    temp_tech_data.description = "Работы почти каждый день, лучше перепроверить"
+    temp_tech_data.work_header = "Работы каждый день"
+    temp_tech_data.description = "Лучше перепроверить"
     temp_tech_data.link = LinkConst.Beltelecom
     current_date = datetime.datetime.now()
     temp_tech_data.publishing_date = current_date.strftime("%d.%m.%Y")
@@ -366,9 +375,7 @@ def parse_Delova9Seti(service_name = 'service_name is null'):
     for data in all_notif:
         try:
             temp_tech_data = TechData.TechData(service_name)
-
             temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Delova9Seti, 'a', 'href')
-
             if data.find_all('p', class_='text-small text-gray mb-4') is not None:
                 universal_date = UniDate.UniversalDate(data.find_all('p', class_='text-small text-gray mb-4'))
                 try:
@@ -386,6 +393,7 @@ def parse_Delova9Seti(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Hoster(service_name = 'service_name is null'):
@@ -417,6 +425,7 @@ def parse_Hoster(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_BeCloud(service_name = 'service_name is null'):
@@ -443,6 +452,7 @@ def parse_BeCloud(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Oplati(service_name = 'service_name is null'):
@@ -471,7 +481,7 @@ def parse_Oplati(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Kupala(service_name = 'service_name is null'):
@@ -500,7 +510,7 @@ def parse_Kupala(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_BVFB(service_name = 'service_name is null'):
@@ -529,7 +539,7 @@ def parse_BVFB(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_NBRB(service_name = 'service_name is null'):
@@ -562,10 +572,12 @@ def parse_NBRB(service_name = 'service_name is null'):
                     temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('div', class_='pub__descr'))
                 except Exception as e:
                     print(e)
+                    LOG.error(f"{str(e)} \n data Exception in find_all {service_name}")
             check_service_info(tech_data_list, temp_tech_data)
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_AlfaRu(service_name = 'service_name is null'):
@@ -594,7 +606,7 @@ def parse_Bank_AlfaRu(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_Belarusbank(service_name = 'service_name is null'):
@@ -624,7 +636,7 @@ def parse_Bank_Belarusbank(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_BSB(service_name = 'service_name is null'):
@@ -653,7 +665,7 @@ def parse_Bank_BSB(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_BTA(service_name = 'service_name is null'):
@@ -681,7 +693,7 @@ def parse_Bank_BTA(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_BankReshenii(service_name = 'service_name is null'):
@@ -710,7 +722,7 @@ def parse_Bank_BankReshenii(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_BELWEB(service_name = 'service_name is null'):
@@ -739,7 +751,7 @@ def parse_Bank_BELWEB(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_BelAgro(service_name = 'service_name is null'):
@@ -768,6 +780,7 @@ def parse_Bank_BelAgro(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_Belinvest(service_name = 'service_name is null'):
@@ -799,7 +812,7 @@ def parse_Bank_Belinvest(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_MTB(service_name = 'service_name is null'):
@@ -833,8 +846,7 @@ def parse_Bank_MTB(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_Paritet(service_name = 'service_name is null'):
@@ -866,7 +878,7 @@ def parse_Bank_Paritet(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_Zepter(service_name = 'service_name is null'):
@@ -896,7 +908,7 @@ def parse_Bank_Zepter(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_Sberbank(service_name = 'service_name is null'):
@@ -927,6 +939,7 @@ def parse_Bank_Sberbank(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
 def parse_Bank_Priorbank(service_name = 'service_name is null'):
@@ -955,5 +968,5 @@ def parse_Bank_Priorbank(service_name = 'service_name is null'):
         except Exception as e:
             print(e)
             print(f"data Exception in {service_name}")
-
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list

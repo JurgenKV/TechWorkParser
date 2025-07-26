@@ -2,6 +2,7 @@ import re
 from datetime import datetime
 
 import locale
+import LOG
 
 class UniversalDate:
     def __init__(self, date_string):
@@ -27,7 +28,9 @@ class UniversalDate:
                 continue
 
         # Если ни один формат не подошел, вызываем ошибку
+        LOG.error(f"Невозможно распознать дату: {self.date_string}")
         raise ValueError(f"Невозможно распознать дату: {self.date_string}")
+
 
     def parse_date_hard(self):
         # Словарь для замены русских названий месяцев
@@ -40,11 +43,13 @@ class UniversalDate:
         # Разбиваем строку на части
         parts = self.date_string.split()
         if len(parts) != 3:
+            LOG.error(f"Неверный формат даты: {self.date_string}")
             raise ValueError(f"Неверный формат даты: {self.date_string}")
 
         day, month_name, year = parts
         month = month_mapping.get(month_name[:3].lower())  # Берем первые 3 буквы месяца
         if not month:
+            LOG.error(f"Неизвестный месяц: {month_name}")
             raise ValueError(f"Неизвестный месяц: {month_name}")
 
         # Формируем новую строку в формате, который понимает datetime
@@ -52,6 +57,7 @@ class UniversalDate:
         try:
             self.date_object = datetime.strptime(formatted_date, "%d.%m.%Y")
         except ValueError as e:
+            LOG.error(f"Невозможно распознать дату: {self.date_string}")
             raise ValueError(f"Невозможно распознать дату: {self.date_string}") from e
 
     def to_format(self, output_format="%d.%m.%Y"):

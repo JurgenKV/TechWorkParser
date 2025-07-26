@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from TechData import TechData
-
+import LOG
 
 def get_publication_date_datetime(str_date):
     try:
@@ -12,6 +12,7 @@ def get_publication_date_datetime(str_date):
     except Exception as v:
         print(v)
         print(str_date)
+        LOG.warning(str(v) + str_date)
         return datetime.now().today()
     return date
 
