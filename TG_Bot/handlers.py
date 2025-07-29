@@ -1,14 +1,17 @@
+import os
+import shutil
+
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
-
+from aiogram.types import Message, FSInputFile
+import zipfile
 import WorkFilter
 import TG_Bot.keyboards as kb
+#from TG_Bot.config import ADMIN_ID
 from TG_Bot.sender import send_works_in_chunks
 from TG_Bot.utils import shorten_url
-
+from LOG import LOG_DIR
 router = Router()
-
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
@@ -51,3 +54,59 @@ async def works_by_14(message: Message):
     filtered = WorkFilter.sort_by_nearest_work(filtered)
     await send_works_in_chunks(message, filtered, "за 14 дней")
 
+
+
+def create_logs_archive(log_directory, archive_name="logs.zip"):
+    with zipfile.ZipFile(archive_name, 'w') as zipf:
+        for root, _, files in os.walk(log_directory):
+            for file in files:
+                zipf.write(os.path.join(root, file), file)
+    return archive_name
+
+
+@router.message(F.text == '/get_logs')
+async def cmd_get_logs(message: Message):
+    # if message.from_user.id != ADMIN_ID:
+    #     await message.answer("У вас нет прав для выполнения этой команды.")
+    #     return
+        # Проверяем, существует ли папка logs и содержит ли она файлы
+    if not os.path.exists(LOG_DIR) or not os.listdir(LOG_DIR):
+        await message.answer("Логи отсутствуют.")
+        return
+        # Получаем список всех файлов логов
+    log_files = [f for f in os.listdir(LOG_DIR) if os.path.isfile(os.path.join(LOG_DIR, f))]
+
+    if not log_files:
+        await message.answer("Логи отсутствуют.")
+        return
+    try:
+        for log_file in log_files:
+            log_file_path = os.path.join(LOG_DIR, log_file)
+
+            # Отправляем файл как документ
+            document = FSInputFile(log_file_path, filename=log_file)
+            await message.answer_document(document=document, caption=f"Лог-файл: {log_file}")
+
+        await message.answer("Все файлы логов отправлены.")
+    except Exception as e:
+        await message.answer(f"Произошла ошибка при отправке логов: {str(e)}")
+
+
+@router.message(F.text == '/delete_logs')
+async def cmd_delete_logs(message: Message):
+    # if message.from_user.id != ADMIN_ID:
+    #     await message.answer("У вас нет прав для выполнения этой команды.")
+    #     return
+
+    if not os.path.exists(LOG_DIR) or not os.listdir(LOG_DIR):
+        await message.answer("Логи отсутствуют.")
+        return
+    # Удаляем логи
+    try:
+        for filename in os.listdir(LOG_DIR):
+            file_path = os.path.join(LOG_DIR, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        await message.answer("Все файлы логов успешно удалены.")
+    except Exception as e:
+        await message.answer(f"Произошла ошибка при удалении логов: {str(e)}")

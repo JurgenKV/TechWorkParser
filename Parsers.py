@@ -1,65 +1,73 @@
 import datetime
 import re
 
-import lxml
-from bs4 import BeautifulSoup
+import lxml # MUST HAVE
 from urllib.parse import urljoin
 
 import HTMLTaker
 import TechData
 import UniDate
 import LinkConst
-import WorkFilter
 import LOG
 
 def get_all_parsing_data():
-    print(datetime.datetime.now().time())
-    LOG.info(str(datetime.datetime.now().time()))
+    print('START PARSING - ' + f'{datetime.datetime.now().time()}')
+    LOG.info('START PARSING - ' + f'{datetime.datetime.now().time()}')
     all_tech_list = list()
     HTMLTaker.initialize_driver()
-    all_tech_list.extend(parse_ERIP('ЕРИП'))
-    all_tech_list.extend(parse_BFT('БФТ'))
-    all_tech_list.extend(parse_BPC('БПЦ'))
-    all_tech_list.extend(parse_MNS('МНС'))
-    all_tech_list.extend(parse_OAIS('ОАИС'))
-    all_tech_list.extend(parse_A1('A1'))  # cringo
-    all_tech_list.extend(parse_MTS('МТС'))  # cringo
-    all_tech_list.extend(parse_Life('Life'))
-    all_tech_list.extend(parse_Seventech('Seventech'))
-    all_tech_list.extend(parse_Beltelecom('Beltelecom'))  # cringo
-    all_tech_list.extend(parse_Delova9Seti('Деловая Сеть'))
-    all_tech_list.extend(parse_Hoster('Hoster'))
-    all_tech_list.extend(parse_BeCloud('BeCloud'))
-    all_tech_list.extend(parse_Oplati('Оплати'))
-    all_tech_list.extend(parse_Kupala('Kupala'))
-    all_tech_list.extend(parse_BVFB('БВФБ'))
-    all_tech_list.extend(parse_NBRB('НБРБ'))
-    all_tech_list.extend(parse_Bank_AlfaRu('Альфа-Банк Россия'))
-    all_tech_list.extend(parse_Bank_Belarusbank('Беларусьбанк'))
-    all_tech_list.extend(parse_Bank_BSB('БСБ Банк'))
-    all_tech_list.extend(parse_Bank_BTA('БТА Банк'))
-    all_tech_list.extend(parse_Bank_BankReshenii('Банк Решений'))
-    all_tech_list.extend(parse_Bank_BELWEB('БЕЛВЕБ Банк'))
-    all_tech_list.extend(parse_Bank_BelAgro('Белагропромбанк'))
-    all_tech_list.extend(parse_Bank_Belinvest('Белинвестбанк'))  # need selenium timeout >20
-    all_tech_list.extend(parse_Bank_MTB('МТБ Банк'))
-    all_tech_list.extend(parse_Bank_Paritet('Паритетбанк'))
-    all_tech_list.extend(parse_Bank_Zepter('Цептер Банк'))
-    all_tech_list.extend(parse_Bank_Sberbank('Сбербанк'))  # problem with year after NY
-    all_tech_list.extend(parse_Bank_Priorbank('Приорбанк'))
+
+    functions_to_parse = [
+        (parse_ERIP, 'ЕРИП'),
+        (parse_BFT, 'БФТ'),
+        (parse_BPC, 'БПЦ'),
+        (parse_MNS, 'МНС'),
+        (parse_OAIS, 'ОАИС'),
+        (parse_A1, 'A1'),
+        (parse_MTS, 'МТС'),
+        (parse_Life, 'Life'),
+        (parse_Seventech, 'Seventech'),
+        (parse_Beltelecom, 'Beltelecom'),
+        (parse_Delova9Seti, 'Деловая Сеть'),
+        (parse_Hoster, 'Hoster'),
+        (parse_BeCloud, 'BeCloud'),
+        (parse_Oplati, 'Оплати'),
+        (parse_Kupala, 'Kupala'),
+        (parse_BVFB, 'БВФБ'),
+        (parse_NBRB, 'НБРБ'),
+        (parse_Bank_AlfaRu, 'Альфа-Банк Россия'),
+        (parse_Bank_Belarusbank, 'Беларусьбанк'),
+        (parse_Bank_BSB, 'БСБ Банк'),
+        (parse_Bank_BTA, 'БТА Банк'),
+        (parse_Bank_BankReshenii, 'Банк Решений'),
+        (parse_Bank_BELWEB, 'БЕЛВЕБ Банк'),
+        (parse_Bank_BelAgro, 'Белагропромбанк'),
+        (parse_Bank_Belinvest, 'Белинвестбанк'),
+        (parse_Bank_MTB, 'МТБ Банк'),
+        (parse_Bank_Paritet, 'Паритетбанк'),
+        (parse_Bank_Zepter, 'Цептер Банк'),
+        (parse_Bank_Sberbank, 'Сбербанк'),
+        (parse_Bank_Priorbank, 'Приорбанк'),
+    ]
+
+    for func, arg in functions_to_parse:
+        try:
+            all_tech_list.extend(func(arg))
+        except Exception as e:
+            LOG.error(f"Ошибка при выполнении парсинг-функции {func.__name__}({arg}): {str(e)}")
+
     HTMLTaker.quit_driver()
 
-    print(datetime.datetime.now().time())
-    LOG.info(str(datetime.datetime.now().time()))
-    # for notif in all_tech_list:
-        # print(f"Сервис: {notif.service_type}")
-        # print(f"Дата работы: {notif.date_of_work}")
-        # print(f"Дата публикации: {notif.publishing_date}")
-        # print(f"Заголовок: {notif.work_header}")
-        # print(f"Ссылка: {notif.link}")
-        # print(f"Описание: {notif.description}")
-        # print(f"{notif.service_type} -- {notif.publishing_date}")
-        # print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
+    print('END PARSING - ' + f'{datetime.datetime.now().time()}')
+    LOG.info('END PARSING - ' + f'{datetime.datetime.now().time()}')
+    #for notif in all_tech_list:
+    # print(f"Сервис: {notif.service_type}")
+    # print(f"Дата работы: {notif.date_of_work}")
+    # print(f"Дата публикации: {notif.publishing_date}")
+    # print(f"Заголовок: {notif.work_header}")
+    # print(f"Ссылка: {notif.link}")
+    # print(f"Описание: {notif.description}")
+    # print(f"{notif.service_type} -- {notif.publishing_date}")
+    #    print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
     return all_tech_list
 
 def is_contains_work_keywords(text):
@@ -176,7 +184,7 @@ def parse_BPC(service_name = 'service_name is null'):
             if data.find_all('div', class_='news_item_date') is not None:
                 universal_date = UniDate.UniversalDate(data.find_all('div', class_='news_item_date'))
                 temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
-            # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+            # Заголовок новости и дата планируемой тех. работы (если есть в адекватном формате)
             if data.find_all('h3') is not None:
                 temp_tech_data.work_header = data.find_all("h3")[0].text.strip()
                 temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('h3'))

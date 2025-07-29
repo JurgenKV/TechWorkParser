@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import traceback
 from datetime import datetime, timedelta
 
 from aiogram.types import Message
@@ -68,62 +69,81 @@ async def send_works_in_chunks(message: Message, works: list, period: str):
 async def update_tech_data_periodically():
     global TECH_LIST_PRIVATE
     global TECH_LIST_TODAY
-    # Инициализация начального списка работ
-    initial_data = Parsers.get_all_parsing_data()
-    LOG.info(f"Данные от парсера при инициализации: {initial_data}")
 
-    TECH_LIST_PRIVATE = WorkFilter.get_works_by_period(initial_data, 14)
-    TECH_LIST_PRIVATE = WorkFilter.sort_by_nearest_work(TECH_LIST_PRIVATE)
+    def is_valid_work_list(work_list):
+        return all(
+            hasattr(work, 'link') and
+            hasattr(work, 'service_type') and
+            hasattr(work, 'work_header') and
+            work.link and work.service_type and work.work_header
+            for work in work_list
+        )
 
-    TECH_LIST_TODAY = WorkFilter.get_works_by_period(initial_data, 1)
-    TECH_LIST_TODAY = WorkFilter.sort_by_nearest_work(TECH_LIST_TODAY)
-    await send_startup_message()
-    await send_new_works_to_group(TECH_LIST_TODAY)
-    LOG.info("Список технических работ успешно инициализирован.")
-
-    while True:
-        now = datetime.now()
-        next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
-        sleep_time = (next_hour - now).total_seconds()
-
-        await asyncio.sleep(sleep_time)  # Ждем до следующего часа
+    try:
         initial_data = Parsers.get_all_parsing_data()
+        LOG.info(f"Данные от парсера при инициализации: {initial_data}")
+
         TECH_LIST_PRIVATE = WorkFilter.get_works_by_period(initial_data, 14)
         TECH_LIST_PRIVATE = WorkFilter.sort_by_nearest_work(TECH_LIST_PRIVATE)
 
+        TECH_LIST_TODAY = WorkFilter.get_works_by_period(initial_data, 1)
+        TECH_LIST_TODAY = WorkFilter.sort_by_nearest_work(TECH_LIST_TODAY)
+
+        await send_startup_message()
+        await send_new_works_to_group(TECH_LIST_TODAY)
+        LOG.info("Список технических работ успешно инициализирован.")
+
+    except Exception as e:
+        LOG.error(f"Ошибка при инициализации данных: {e}\n{traceback.format_exc()}")
+        LOG.info("Перезапуск инициализации через 1 минуту...")
+        await asyncio.sleep(60)
+        await update_tech_data_periodically()
+        return
+
+    while True:
         try:
-            # Получаем новый список работ
+            now = datetime.now()
+            next_hour = (now + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+            sleep_time = (next_hour - now).total_seconds()
+            await asyncio.sleep(sleep_time)
+
+            initial_data = Parsers.get_all_parsing_data()
+            TECH_LIST_PRIVATE = WorkFilter.get_works_by_period(initial_data, 14)
+            TECH_LIST_PRIVATE = WorkFilter.sort_by_nearest_work(TECH_LIST_PRIVATE)
+
             new_tech_list = WorkFilter.get_works_by_period(initial_data, 1)
             new_tech_list = WorkFilter.sort_by_nearest_work(new_tech_list)
 
-            # Проверяем, что списки не пустые
-            if not new_tech_list:
-                LOG.warning("Новый список работ пуст.")
+            if not new_tech_list or not is_valid_work_list(new_tech_list):
+                LOG.warning("Новый список работ пуст или содержит некорректные данные.")
                 continue
 
-            if not TECH_LIST_TODAY:
-                LOG.warning("Текущий список работ пуст. Инициализирую заново.")
+            if not TECH_LIST_TODAY or not is_valid_work_list(TECH_LIST_TODAY):
+                LOG.warning("Текущий список работ пуст или содержит некорректные данные. Инициализирую заново.")
                 TECH_LIST_TODAY = new_tech_list.copy()
                 continue
 
-            # Находим новые работы (по уникальному идентификатору)
+            current_ids = {(item.link, item.service_type, item.work_header) for item in TECH_LIST_TODAY}
             new_works = [
                 work for work in new_tech_list
-                if work.link and work.service_type and work.work_header not in [item.link and item.service_type and item.work_header for item in TECH_LIST_TODAY]
+                if (work.link, work.service_type, work.work_header) not in current_ids
             ]
 
-            # Отправляем новые работы в группу
             if new_works:
-                await send_new_works_to_group(new_works)
-                LOG.info(f"Отправлено {len(new_works)} новых работ.")
+                try:
+                    await send_new_works_to_group(new_works)
+                    LOG.info(f"Отправлено {len(new_works)} новых работ.")
+                except Exception as e:
+                    LOG.error(f"Ошибка при отправке новых работ: {e}\n{traceback.format_exc()}")
             else:
                 LOG.info("Новых работ нет.")
 
-            # Обновляем глобальный список
             TECH_LIST_TODAY = new_tech_list.copy()
 
         except Exception as e:
-            LOG.error(f"Ошибка при обновлении данных: {e}")
+            LOG.error(f"Критическая ошибка в основном цикле: {e}\n{traceback.format_exc()}")
+            LOG.info("Перезапуск цикла через 1 минуту...")
+            await asyncio.sleep(60)
 
 async def send_shutdown_message():
     try:
