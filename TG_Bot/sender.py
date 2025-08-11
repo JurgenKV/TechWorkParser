@@ -36,8 +36,8 @@ async def send_new_works_to_group(new_works: list[TechData]):
                     f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
                     f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
                 )
-            works_message += f"<b>Новые технические работы (часть {i}/{len(chunks)})</b>\n"
             try:
+                works_message += f"<b>Новые технические работы (часть {i}/{len(chunks)})</b>\n"
                 await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
                 LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
             except Exception as e:
@@ -68,8 +68,8 @@ async def send_summary_works_to_group(works: list[TechData]):
                     f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
                     f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
                 )
-            works_message += f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)})<b>\n"
             try:
+                works_message += f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)})<b>\n"
                 await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
                 LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
             except Exception as e:
@@ -92,9 +92,8 @@ async def send_works_in_chunks(message: Message, works: list, period: str):
                               f'<b>Описание:</b> {new_work.description}\n'
                               f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
                               f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n')
-
-            works_message += f"Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)})"
         try:
+            works_message += f"Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)})"
             await message.answer(works_message,  parse_mode='HTML', markup=kb,disable_web_page_preview=True)
         except Exception as e:
             await message.answer(f"Ошибка при отправке сообщения: {e}")
@@ -110,8 +109,8 @@ async def send_works_in_chunks_only_service(message: Message, works: list, perio
             works_message += (
                 f'<b><i>[{new_work.publishing_date}] <a href="{new_work.link}">{new_work.service_type}</a></i></b>\n'
             )
-        works_message += f"\nТехнические работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n"
         try:
+            works_message += f"\nТехнические работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n"
             await message.answer(works_message,  parse_mode='HTML', markup=kb,disable_web_page_preview=True)
         except Exception as e:
             await message.answer(f"Ошибка при отправке сообщения: {e}")
