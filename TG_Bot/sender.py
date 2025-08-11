@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from aiogram.types import Message
 
@@ -27,7 +27,7 @@ async def send_new_works_to_group(new_works: list[TechData]):
 
         from run import bot
         for i, chunk in enumerate(chunks, start=1):
-            works_message = f"Технические работы (часть {i}/{len(chunks)}):\n\n"
+            works_message = f"<b>Новые технические работы (часть {i}/{len(chunks)}):</b>\n\n"
             for new_work in chunk:
                 works_message += (
                     f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
@@ -36,8 +36,9 @@ async def send_new_works_to_group(new_works: list[TechData]):
                     f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
                     f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
                 )
+            works_message += f"<b>Новые технические работы (часть {i}/{len(chunks)})</b>\n"
             try:
-                await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML')
+                await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
                 LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
             except Exception as e:
                 LOG.error(f"Ошибка при отправке чанка {i}: {e}")
@@ -47,20 +48,71 @@ async def send_new_works_to_group(new_works: list[TechData]):
     except Exception as e:
         LOG.error(f"Ошибка отправки данных в группу: {e}")
 
+async def send_summary_works_to_group(works: list[TechData]):
+    try:
+        if not works:
+            LOG.info("Работ нет.")
+            return
+
+        chunk_size = 10
+        chunks = [works[i:i + chunk_size] for i in range(0, len(works), chunk_size)]
+
+        from run import bot
+        for i, chunk in enumerate(chunks, start=1):
+            works_message = f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)}):<b>\n\n"
+            for new_work in chunk:
+                works_message += (
+                    f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
+                    f'<b>Заголовок:</b> {new_work.work_header}\n'
+                    f'<b>Описание:</b> {new_work.description}\n'
+                    f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
+                    f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
+                )
+            works_message += f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)})<b>\n"
+            try:
+                await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
+                LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
+            except Exception as e:
+                LOG.error(f"Ошибка при отправке чанка {i}: {e}")
+                break
+
+        LOG.info(f"Всего отправлено {len(works)} сводных работ в группу.")
+    except Exception as e:
+        LOG.error(f"Ошибка отправки данных в группу: {e}")
+
 async def send_works_in_chunks(message: Message, works: list, period: str):
     chunk_size = 10
     chunks = [works[i:i + chunk_size] for i in range(0, len(works), chunk_size)]
 
     for i, chunk in enumerate(chunks, start=1):
-        works_message = f"Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n\n"
+        works_message = f"<b>Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)}):</b>\n\n"
         for new_work in chunk:
             works_message += (f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
                               f'<b>Заголовок:</b> {new_work.work_header}\n'
                               f'<b>Описание:</b> {new_work.description}\n'
                               f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
                               f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n')
+
+            works_message += f"Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)})"
         try:
-            await message.answer(works_message,  parse_mode='HTML', markup=kb)
+            await message.answer(works_message,  parse_mode='HTML', markup=kb,disable_web_page_preview=True)
+        except Exception as e:
+            await message.answer(f"Ошибка при отправке сообщения: {e}")
+            break
+
+async def send_works_in_chunks_only_service(message: Message, works: list, period: str):
+    chunk_size = 100
+    chunks = [works[i:i + chunk_size] for i in range(0, len(works), chunk_size)]
+
+    for i, chunk in enumerate(chunks, start=1):
+        works_message = f"Технические работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n\n"
+        for new_work in chunk:
+            works_message += (
+                f'<b><i>[{new_work.publishing_date}] <a href="{new_work.link}">{new_work.service_type}</a></i></b>\n'
+            )
+        works_message += f"\nТехнические работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n"
+        try:
+            await message.answer(works_message,  parse_mode='HTML', markup=kb,disable_web_page_preview=True)
         except Exception as e:
             await message.answer(f"Ошибка при отправке сообщения: {e}")
             break
@@ -149,7 +201,7 @@ async def send_shutdown_message():
     try:
         from run import bot
         text = "Бот отключен ⚠️"
-        await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=text, parse_mode='HTML')
+        await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=text, parse_mode='HTML',disable_web_page_preview=True)
     except Exception as e:
         LOG.error(f"Ошибка при отправке сообщения о выключении: {e}")
 
@@ -157,6 +209,54 @@ async def send_startup_message():
     try:
         from run import bot
         text = "Бот подключен ✅"
-        await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=text, parse_mode='HTML')
+        await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=text, parse_mode='HTML',disable_web_page_preview=True)
     except Exception as e:
         LOG.error(f"Ошибка при отправке сообщения о включении: {e}")
+
+async def send_summary_works():
+    try:
+        # Таргет времени: 21:10 и 9:10
+        target_time_1 = time(21, 10)
+        target_time_2 = time(9, 10)
+
+        while True:
+            now = datetime.now().time()
+
+            # Проверяем, какое из времён наступит раньше
+            if now < target_time_1 and now < target_time_2:
+                # Если текущее время раньше обоих целевых времён, выбираем ближайшее
+                next_time = min(target_time_1, target_time_2)
+            elif now < target_time_1:
+                next_time = target_time_1
+            else:
+                # Если текущее время позже 21:10, следующее время — 9:10
+                next_time = target_time_2
+
+            now_dt = datetime.now()  # Полная дата и время
+            next_dt = datetime.combine(now_dt.date(), next_time)
+            if now_dt.time() > next_time:
+                next_dt += timedelta(days=1)
+
+            sleep_time = (next_dt - now_dt).total_seconds()
+
+            await asyncio.sleep(sleep_time)
+
+            try:
+                filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 2)
+                filtered = WorkFilter.sort_by_nearest_work(filtered)
+                if filtered:
+                    try:
+                        await send_summary_works_to_group(filtered)
+                        LOG.info(f"Отправлена {len(filtered)} сводка  работ.")
+                    except Exception as e:
+                        LOG.error(f"Ошибка при отправке сводных работ: {e}\n{traceback.format_exc()}")
+            except Exception as send_error:
+                print(f"Ошибка при отправке сообщения: {send_error}")
+                LOG.error(f"Ошибка при отправке сообщения: {send_error}")
+
+            sleep_duration = timedelta(hours=11, minutes=50).total_seconds()
+            await asyncio.sleep(sleep_duration)
+
+    except Exception as e:
+        print("Ошибка в функции отправки сводки по тех. работам")
+        LOG.error(f"Ошибка в функции отправки сводки по тех. работам: {e}")

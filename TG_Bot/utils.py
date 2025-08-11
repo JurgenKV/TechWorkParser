@@ -3,6 +3,8 @@ import pyshorteners
 import LOG
 
 def shorten_url(url):
+    import pyshorteners.shorteners
+
     try:
         shortener = pyshorteners.Shortener()
         short_url = shortener.tinyurl.short(url)

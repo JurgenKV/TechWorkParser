@@ -8,7 +8,7 @@ import zipfile
 import WorkFilter
 import TG_Bot.keyboards as kb
 #from TG_Bot.config import ADMIN_ID
-from TG_Bot.sender import send_works_in_chunks
+from TG_Bot.sender import send_works_in_chunks, send_works_in_chunks_only_service
 from TG_Bot.utils import shorten_url
 from LOG import LOG_DIR
 router = Router()
@@ -31,6 +31,20 @@ async def works_by_1(message: Message):
     filtered = WorkFilter.sort_by_nearest_work(filtered)
     await send_works_in_chunks(message, filtered, "за сегодня")
 
+@router.message(F.text == 'За 2 дня')
+async def works_by_3(message: Message):
+    from TG_Bot.sender import TECH_LIST_PRIVATE
+    filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 2)
+    filtered = WorkFilter.sort_by_nearest_work(filtered)
+    await send_works_in_chunks(message, filtered, "за 2 дня")
+
+@router.message(F.text == 'Поставщики за 3 дня')
+async def works_by_14(message: Message):
+    from TG_Bot.sender import TECH_LIST_PRIVATE
+    filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 3)
+    filtered = WorkFilter.sort_by_nearest_work(filtered)
+    await send_works_in_chunks_only_service(message, filtered, "за 3 дня (Поставщики)")
+
 @router.message(F.text == 'За 3 дня')
 async def works_by_3(message: Message):
     from TG_Bot.sender import TECH_LIST_PRIVATE
@@ -39,12 +53,12 @@ async def works_by_3(message: Message):
     await send_works_in_chunks(message, filtered, "за 3 дня")
 
 
-@router.message(F.text == 'За 7 дней')
+@router.message(F.text == 'За 5 дней')
 async def works_by_7(message: Message):
     from TG_Bot.sender import TECH_LIST_PRIVATE
-    filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 7)
+    filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 5)
     filtered = WorkFilter.sort_by_nearest_work(filtered)
-    await send_works_in_chunks(message, filtered, "за 7 дней")
+    await send_works_in_chunks(message, filtered, "за 5 дней")
 
 
 @router.message(F.text == 'За 14 дней')
@@ -53,8 +67,6 @@ async def works_by_14(message: Message):
     filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 14)
     filtered = WorkFilter.sort_by_nearest_work(filtered)
     await send_works_in_chunks(message, filtered, "за 14 дней")
-
-
 
 def create_logs_archive(log_directory, archive_name="logs.zip"):
     with zipfile.ZipFile(archive_name, 'w') as zipf:

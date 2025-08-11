@@ -3,7 +3,7 @@ import re
 
 import lxml # MUST HAVE
 from urllib.parse import urljoin
-
+import pyshorteners
 import HTMLTaker
 import TechData
 import UniDate

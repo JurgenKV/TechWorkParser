@@ -7,7 +7,7 @@ import TG_Bot.config
 from LOG import setup_logger
 
 from TG_Bot.handlers import router
-from TG_Bot.sender import update_tech_data_periodically
+from TG_Bot.sender import update_tech_data_periodically, send_summary_works
 from TG_Bot.sender import send_shutdown_message
 import LOG
 
@@ -18,6 +18,7 @@ async def main():
     try:
         setup_logger()
         asyncio.create_task(update_tech_data_periodically())
+        asyncio.create_task(send_summary_works())
         disp.include_router(router)
         await disp.start_polling(bot)
     except Exception as e:

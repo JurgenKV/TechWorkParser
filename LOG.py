@@ -1,10 +1,9 @@
 import logging
-from datetime import datetime
 import os
-LOG_DIR = 'logs'
-# Создаем логгер
+from datetime import datetime
+import pyshorteners
 LOGGER = logging.getLogger("AppLogger")
-
+LOG_DIR = 'logs'
 def setup_logger():
     if not os.path.exists(LOG_DIR):
         os.makedirs(LOG_DIR)
