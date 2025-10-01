@@ -59,7 +59,7 @@ async def send_summary_works_to_group(works: list[TechData]):
 
         from run import bot
         for i, chunk in enumerate(chunks, start=1):
-            works_message = f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)}):<b>\n\n"
+            works_message = f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)}):</b>\n\n"
             for new_work in chunk:
                 works_message += (
                     f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
@@ -69,7 +69,7 @@ async def send_summary_works_to_group(works: list[TechData]):
                     f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
                 )
             try:
-                works_message += f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)})<b>\n"
+                works_message += f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)})</b>\n"
                 await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
                 LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
             except Exception as e:
