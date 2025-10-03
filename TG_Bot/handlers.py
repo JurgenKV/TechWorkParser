@@ -124,5 +124,9 @@ async def cmd_delete_logs(message: Message):
         await message.answer(f"Произошла ошибка при удалении логов: {str(e)}")
 
 @router.message(F.text == '/sum')
-async def get_summary_works():
-    await admin_send_summary_works()
+async def get_summary_works(message: Message):
+    try:
+        await message.answer(f"Сводные работы отправлены")
+        await admin_send_summary_works()
+    except Exception as e:
+        await message.answer(f"Произошла ошибка при принудительной отправке сводных работ: {str(e)}")
