@@ -8,7 +8,7 @@ import zipfile
 import WorkFilter
 import TG_Bot.keyboards as kb
 #from TG_Bot.config import ADMIN_ID
-from TG_Bot.sender import send_works_in_chunks, send_works_in_chunks_only_service
+from TG_Bot.sender import send_works_in_chunks, send_works_in_chunks_only_service, admin_send_summary_works
 from TG_Bot.utils import shorten_url
 from LOG import LOG_DIR
 router = Router()
@@ -122,3 +122,7 @@ async def cmd_delete_logs(message: Message):
         await message.answer("Все файлы логов успешно удалены.")
     except Exception as e:
         await message.answer(f"Произошла ошибка при удалении логов: {str(e)}")
+
+@router.message(F.text == '/sum')
+async def get_summary_works():
+    await admin_send_summary_works()

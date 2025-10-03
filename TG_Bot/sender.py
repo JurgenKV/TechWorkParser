@@ -214,9 +214,9 @@ async def send_startup_message():
 
 async def send_summary_works():
     try:
-        # Таргет времени: 21:10 и 9:10
-        target_time_1 = time(21, 10)
-        target_time_2 = time(9, 10)
+        # Таргет времени: 20:50 и 8:50
+        target_time_1 = time(20, 50)
+        target_time_2 = time(8, 50)
 
         while True:
             now = datetime.now().time()
@@ -259,3 +259,13 @@ async def send_summary_works():
     except Exception as e:
         print("Ошибка в функции отправки сводки по тех. работам")
         LOG.error(f"Ошибка в функции отправки сводки по тех. работам: {e}")
+
+async def admin_send_summary_works():
+    filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 2)
+    filtered = WorkFilter.sort_by_nearest_work(filtered)
+    if filtered:
+        try:
+            await send_summary_works_to_group(filtered)
+            LOG.info(f"Admin. Отправлена {len(filtered)} сводка  работ.")
+        except Exception as e:
+            LOG.error(f"Admin. Ошибка при отправке сводных работ: {e}\n{traceback.format_exc()}")
