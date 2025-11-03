@@ -47,9 +47,14 @@ def get_all_parsing_data():
         (parse_Bank_Zepter, 'Цептер Банк'),
         (parse_Bank_Sberbank, 'Сбербанк'),
         (parse_Bank_Priorbank, 'Приорбанк'),
+        (parse_WhiteBird, 'WhiteBird')
     ]
 
-    for func, arg in functions_to_parse:
+    functions_to_parse_test = [
+        (parse_WhiteBird, 'WhiteBird')
+    ]
+
+    for func, arg in functions_to_parse_test:
         try:
             all_tech_list.extend(func(arg))
         except Exception as e:
@@ -972,6 +977,38 @@ def parse_Bank_Priorbank(service_name = 'service_name is null'):
                 temp_tech_data.work_header = data.find_all('a',class_="news-list__title-link")[0].text.strip()
                 temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('a',class_='news-list__title-link'))
 
+            check_service_info(tech_data_list, temp_tech_data)
+        except Exception as e:
+            print(e)
+            print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
+    return tech_data_list
+
+def parse_WhiteBird(service_name = 'service_name is null'):
+    tech_data_list = []
+    soup = HTMLTaker.get_soup_page_fullJS(LinkConst.WhiteBird, 'lxml')
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='sc-832ffd85-2 JMHOt')
+
+    for data in all_notif:
+        try:
+            temp_tech_data = TechData.TechData(service_name)
+            # Ссылка на новость
+            temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.WhiteBird, 'a', 'href')
+            # Дата публикации
+            if data.find_all('div', class_= 'sc-832ffd85-4 rsdun') is not None:
+                universal_date = UniDate.UniversalDate(data.find_all('div', class_= 'sc-832ffd85-4 rsdun'))
+                temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+            # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+            if data.find_all('h4',class_='sc-832ffd85-5 jEXqbc') is not None:
+                temp_tech_data.work_header = data.find_all('h4',class_="sc-832ffd85-5 jEXqbc")[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('p',class_='sc-832ffd85-6 dSryyv'))
+            # Описание новости (если есть)
+            if data.find_all('div', class_='sc-832ffd85-6 dSryyv') is not None:
+                temp_tech_data.description = data.find_all('div', class_='sc-832ffd85-6 dSryyv')[0].text.strip()
+            temp_tech_data.link = LinkConst.WhiteBird
             check_service_info(tech_data_list, temp_tech_data)
         except Exception as e:
             print(e)

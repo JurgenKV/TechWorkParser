@@ -1,3 +1,5 @@
+import time
+
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -64,6 +66,45 @@ def get_page_with_selenium(url, timeout=20):
         print("Ошибка при загрузке страницы:", e)
         return None
 
+def get_page_with_selenium_fullJS(url, timeout=20, wait_selector=None, scroll=True):
+    try:
+        WEB_DRIVER.get(url)
+
+        # ждём, пока загрузится основной документ
+        WebDriverWait(WEB_DRIVER, timeout).until(
+            EC.presence_of_element_located((By.TAG_NAME, "body"))
+        )
+
+        # ждём, пока React подгрузит контент (если указан селектор)
+        if wait_selector:
+            WebDriverWait(WEB_DRIVER, timeout).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, wait_selector))
+            )
+
+        # прокручиваем страницу, если нужно (часто помогает при ленивой подгрузке)
+        if scroll:
+            last_height = WEB_DRIVER.execute_script("return document.body.scrollHeight")
+            while True:
+                WEB_DRIVER.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1.5)  # ждём догрузку
+                new_height = WEB_DRIVER.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
+
+        # ждём стабильное состояние JS
+        WebDriverWait(WEB_DRIVER, timeout).until(
+            lambda d: d.execute_script("return document.readyState") == "complete"
+        )
+
+        # возвращаем HTML страницы
+        return WEB_DRIVER.page_source
+
+    except Exception as e:
+        LOG.error("Ошибка при загрузке страницы: " + str(e))
+        print("Ошибка при загрузке страницы:", e)
+        return None
+
 def get_request(link, service_name):
     try:
         response = requests.get(link, headers=HEADERS, timeout=10)  # Добавлен таймаут
@@ -83,6 +124,23 @@ def get_soup_page(link, soup_features = 'lxml'):
     soup = None
     try:
         page_source = get_page_with_selenium(link)
+        if page_source is None:
+            print(f'{link} page_source is null')
+            LOG.error(f'{link} page_source is null')
+            return
+        soup = BeautifulSoup(page_source, soup_features)
+    except Exception as e:
+        print(e)
+        LOG.error(f'{str(e)}')
+    if soup is None:
+        print(f'{link} soup is null')
+        LOG.error(f'{link} soup is null')
+    return soup
+
+def get_soup_page_fullJS(link, soup_features = 'lxml'):
+    soup = None
+    try:
+        page_source = get_page_with_selenium_fullJS(link)
         if page_source is None:
             print(f'{link} page_source is null')
             LOG.error(f'{link} page_source is null')
