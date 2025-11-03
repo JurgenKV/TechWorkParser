@@ -54,7 +54,7 @@ def get_all_parsing_data():
         (parse_WhiteBird, 'WhiteBird')
     ]
 
-    for func, arg in functions_to_parse_test:
+    for func, arg in functions_to_parse:
         try:
             all_tech_list.extend(func(arg))
         except Exception as e:
