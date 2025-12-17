@@ -1,6 +1,8 @@
 import time
-
+import LOG
+import TG_Bot.config
 import requests
+
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -9,8 +11,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.ie.webdriver import WebDriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-import LOG
 
 HEADERS = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
@@ -34,9 +34,7 @@ WEB_DRIVER: WebDriver
 
 def initialize_driver():
     try:
-        f = open('ChromeDriver_path.txt', 'r')
-        service = Service(f.readline().strip())  # Укажите путь к chromedriver
-        f.close()
+        service = Service(TG_Bot.config.get_chromedriver_path())  # путь к chromedriver из .cfg
     except Exception as e:
         print(e)
         LOG.error(str(e))

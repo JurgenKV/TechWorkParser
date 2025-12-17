@@ -1,22 +1,22 @@
 import asyncio
 import logging
+import LOG
+import TG_Bot.config
+
+from LOG import setup_logger
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
-
-import TG_Bot.config
-from LOG import setup_logger
-
 from TG_Bot.handlers import router
-from TG_Bot.sender import update_tech_data_periodically, send_summary_works
+from TG_Bot.sender import update_tech_data_periodically, send_summary_works, send_startup_message
 from TG_Bot.sender import send_shutdown_message
-import LOG
 
-bot = Bot(token=TG_Bot.config.get_token())
+bot = Bot(token=TG_Bot.config.get_tg_token())
 disp = Dispatcher(storage=MemoryStorage())
 
 async def main():
     try:
         setup_logger()
+        await send_startup_message()
         asyncio.create_task(update_tech_data_periodically())
         asyncio.create_task(send_summary_works())
         disp.include_router(router)

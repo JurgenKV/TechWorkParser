@@ -35,9 +35,9 @@ def get_all_parsing_data():
         (parse_BVFB, 'БВФБ'),
         (parse_NBRB, 'НБРБ'),
         (parse_Bank_AlfaRu, 'Альфа-Банк Россия'),
-        (parse_Bank_Belarusbank, 'Беларусьбанк'),
+        (parse_Bank_Belarusbank, 'Беларусбанк'),
         (parse_Bank_BSB, 'БСБ Банк'),
-        (parse_Bank_BTA, 'БТА Банк'),
+        (parse_Bank_NEO, 'НЕО Банк'),
         (parse_Bank_BankReshenii, 'Банк Решений'),
         (parse_Bank_BELWEB, 'БЕЛВЕБ Банк'),
         (parse_Bank_BelAgro, 'Белагропромбанк'),
@@ -76,7 +76,7 @@ def get_all_parsing_data():
     return all_tech_list
 
 def is_contains_work_keywords(text):
-    keywords = ['работы','технич','технологич', 'недоступ', 'планов']
+    keywords = ['работ','технич','технологич', 'недоступ', 'планов', 'перерыв', 'обслужив']
     if not text or not keywords:
         return False
 
@@ -681,9 +681,9 @@ def parse_Bank_BSB(service_name = 'service_name is null'):
             LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
 
-def parse_Bank_BTA(service_name = 'service_name is null'):
+def parse_Bank_NEO(service_name = 'service_name is null'):
     tech_data_list = []
-    soup = HTMLTaker.get_soup_page(LinkConst.Bank_BTA, 'lxml')
+    soup = HTMLTaker.get_soup_page(LinkConst.Bank_NEO, 'lxml')
     if soup is None:
         return
 
@@ -693,7 +693,7 @@ def parse_Bank_BTA(service_name = 'service_name is null'):
         try:
             temp_tech_data = TechData.TechData(service_name)
             # Ссылка на новость
-            temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_BTA, 'a', 'href')
+            temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.Bank_NEO, 'a', 'href')
             # Дата публикации
             if data.find_all('span', class_='news-card__date') is not None:
                 universal_date = UniDate.UniversalDate(data.find_all('span', class_='news-card__date'))
@@ -804,6 +804,7 @@ def parse_Bank_Belinvest(service_name = 'service_name is null'):
 
     # item новости
     all_notif = soup.find_all('div', class_='press-newsList-item')
+    #all_notif = soup.find_all('div', class_=lambda x: x and 'press-newsList-item' in x)
 
     for data in all_notif:
         try:

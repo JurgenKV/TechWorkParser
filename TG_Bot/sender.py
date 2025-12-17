@@ -1,21 +1,23 @@
 import asyncio
 import logging
 import traceback
-from datetime import datetime, timedelta, time
-
-from aiogram.types import Message
-
 import Parsers
 import WorkFilter
+import LOG
+
+from datetime import datetime, timedelta, time
+from aiogram.types import Message
 from TG_Bot import config
 from TG_Bot.utils import shorten_url
 from TechData import TechData
 from TG_Bot.keyboards import main as kb
+
 TECH_LIST_PRIVATE = []
 TECH_LIST_TODAY = []
 
-import LOG
 
+
+SHORT_WORK_TYPE = ['A1', 'МТС', 'Beltelecom']
 async def send_new_works_to_group(new_works: list[TechData]):
     try:
         if not new_works:
@@ -27,18 +29,12 @@ async def send_new_works_to_group(new_works: list[TechData]):
 
         from run import bot
         for i, chunk in enumerate(chunks, start=1):
-            works_message = f"<b>Новые технические работы (часть {i}/{len(chunks)}):</b>\n\n"
+            works_message = f"<b>Новые тех. работы (часть {i}/{len(chunks)}):</b>\n\n"
             for new_work in chunk:
-                works_message += (
-                    f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
-                    f'<b>Заголовок:</b> {new_work.work_header}\n'
-                    f'<b>Описание:</b> {new_work.description}\n'
-                    f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
-                    f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
-                )
+                works_message = create_message_text_by_template(works_message, new_work)
             try:
-                works_message += f"<b>Новые технические работы (часть {i}/{len(chunks)})</b>\n"
-                await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
+                works_message += f"<b>Новые тех. работы (часть {i}/{len(chunks)})</b>\n"
+                await bot.send_message(chat_id=config.get_group_chat_id(), text=works_message, parse_mode='HTML',disable_web_page_preview=True)
                 LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
             except Exception as e:
                 LOG.error(f"Ошибка при отправке чанка {i}: {e}")
@@ -59,18 +55,12 @@ async def send_summary_works_to_group(works: list[TechData]):
 
         from run import bot
         for i, chunk in enumerate(chunks, start=1):
-            works_message = f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)}):</b>\n\n"
+            works_message = f"<b>СВОДКА за 2 дня.\nТех. работы (часть {i}/{len(chunks)}):</b>\n\n"
             for new_work in chunk:
-                works_message += (
-                    f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
-                    f'<b>Заголовок:</b> {new_work.work_header}\n'
-                    f'<b>Описание:</b> {new_work.description}\n'
-                    f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
-                    f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n'
-                )
+                works_message = create_message_text_by_template(works_message, new_work)
             try:
-                works_message += f"<b>СВОДКА за 2 дня.\nТехнические работы (часть {i}/{len(chunks)})</b>\n"
-                await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=works_message, parse_mode='HTML',disable_web_page_preview=True)
+                works_message += f"<b>СВОДКА за 2 дня.\nТех. работы (часть {i}/{len(chunks)})</b>\n"
+                await bot.send_message(chat_id=config.get_group_chat_id(), text=works_message, parse_mode='HTML',disable_web_page_preview=True)
                 LOG.info(f"Отправлен чанк {i}/{len(chunks)} с {len(chunk)} работами.")
             except Exception as e:
                 LOG.error(f"Ошибка при отправке чанка {i}: {e}")
@@ -85,15 +75,11 @@ async def send_works_in_chunks(message: Message, works: list, period: str):
     chunks = [works[i:i + chunk_size] for i in range(0, len(works), chunk_size)]
 
     for i, chunk in enumerate(chunks, start=1):
-        works_message = f"<b>Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)}):</b>\n\n"
+        works_message = f"<b>Тех. работы <b>{period.lower()}</b> (часть {i}/{len(chunks)}):</b>\n\n"
         for new_work in chunk:
-            works_message += (f'<b><i>[{new_work.publishing_date}] {new_work.service_type}</i></b>\n'
-                              f'<b>Заголовок:</b> {new_work.work_header}\n'
-                              f'<b>Описание:</b> {new_work.description}\n'
-                              f'<b>Дата проведения:</b> {new_work.date_of_work}\n'
-                              f'<b>Ссылка:</b> {shorten_url(new_work.link)}\n\n')
+            works_message = create_message_text_by_template(works_message, new_work)
         try:
-            works_message += f"Технические работы <b>{period.lower()}</b> (часть {i}/{len(chunks)})"
+            works_message += f"Тех. работы <b>{period.lower()}</b> (часть {i}/{len(chunks)})"
             await message.answer(works_message,  parse_mode='HTML', markup=kb,disable_web_page_preview=True)
         except Exception as e:
             await message.answer(f"Ошибка при отправке сообщения: {e}")
@@ -104,13 +90,13 @@ async def send_works_in_chunks_only_service(message: Message, works: list, perio
     chunks = [works[i:i + chunk_size] for i in range(0, len(works), chunk_size)]
 
     for i, chunk in enumerate(chunks, start=1):
-        works_message = f"Технические работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n\n"
+        works_message = f"Тех. работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n\n"
         for new_work in chunk:
             works_message += (
                 f'<b><i>[{new_work.publishing_date}] <a href="{new_work.link}">{new_work.service_type}</a></i></b>\n'
             )
         try:
-            works_message += f"\nТехнические работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n"
+            works_message += f"\nТех. работы поставщиков <b>{period.lower()}</b> (часть {i}/{len(chunks)}):\n"
             await message.answer(works_message,  parse_mode='HTML', markup=kb,disable_web_page_preview=True)
         except Exception as e:
             await message.answer(f"Ошибка при отправке сообщения: {e}")
@@ -132,7 +118,7 @@ async def update_tech_data_periodically():
 
     try:
         initial_data = Parsers.get_all_parsing_data()
-        LOG.info(f"Данные от парсера при инициализации: {initial_data}")
+        LOG.info(f"Данные от парсера при инициализации получены")
 
         TECH_LIST_PRIVATE = WorkFilter.get_works_by_period(initial_data, 14)
         TECH_LIST_PRIVATE = WorkFilter.sort_by_nearest_work(TECH_LIST_PRIVATE)
@@ -140,9 +126,8 @@ async def update_tech_data_periodically():
         TECH_LIST_TODAY = WorkFilter.get_works_by_period(initial_data, 1)
         TECH_LIST_TODAY = WorkFilter.sort_by_nearest_work(TECH_LIST_TODAY)
 
-        await send_startup_message()
         await send_new_works_to_group(TECH_LIST_TODAY)
-        LOG.info("Список технических работ успешно инициализирован.")
+        LOG.info("Список тех. работ успешно инициализирован.")
 
     except Exception as e:
         LOG.error(f"Ошибка при инициализации данных: {e}\n{traceback.format_exc()}")
@@ -200,7 +185,7 @@ async def send_shutdown_message():
     try:
         from run import bot
         text = "Бот отключен ⚠️"
-        await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=text, parse_mode='HTML',disable_web_page_preview=True)
+        await bot.send_message(chat_id=config.get_group_chat_id(), text=text, parse_mode='HTML',disable_web_page_preview=True)
     except Exception as e:
         LOG.error(f"Ошибка при отправке сообщения о выключении: {e}")
 
@@ -208,7 +193,7 @@ async def send_startup_message():
     try:
         from run import bot
         text = "Бот подключен ✅"
-        await bot.send_message(chat_id=config.GROUP_CHAT_ID, text=text, parse_mode='HTML',disable_web_page_preview=True)
+        await bot.send_message(chat_id=config.get_group_chat_id(), text=text, parse_mode='HTML',disable_web_page_preview=True)
     except Exception as e:
         LOG.error(f"Ошибка при отправке сообщения о включении: {e}")
 
@@ -269,3 +254,26 @@ async def admin_send_summary_works():
             LOG.info(f"Admin. Отправлена {len(filtered)} сводка  работ.")
         except Exception as e:
             LOG.error(f"Admin. Ошибка при отправке сводных работ: {e}\n{traceback.format_exc()}")
+
+def is_contain_short_type(text):
+    if text in SHORT_WORK_TYPE:
+        return True
+
+def create_message_text_by_template(works_message,new_work ):
+    if is_contain_short_type(new_work.service_type):
+        works_message += (
+            f'<b><i>[{new_work.publishing_date}] <a href="{new_work.link}">{new_work.service_type}</a></i></b>\n'
+            f'<b>Описание:</b> Перепроверить\n\n'
+        )
+    else:
+        if new_work.date_of_work is None:
+            new_work.date_of_work = 'На сайте'
+        if new_work.description == '':
+            new_work.description = 'На сайте'
+        works_message += (
+            f'<b><i>[{new_work.publishing_date}] <a href="{new_work.link}">{new_work.service_type}</a></i></b>\n'
+            f'<b>Заголовок:</b> {new_work.work_header}\n'
+            f'<b>Описание:</b> {new_work.description}\n'
+            f'<b>Дата проведения:</b> {new_work.date_of_work}\n\n'
+        )
+    return works_message

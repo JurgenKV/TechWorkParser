@@ -52,14 +52,12 @@ async def works_by_3(message: Message):
     filtered = WorkFilter.sort_by_nearest_work(filtered)
     await send_works_in_chunks(message, filtered, "за 3 дня")
 
-
 @router.message(F.text == 'За 5 дней')
 async def works_by_7(message: Message):
     from TG_Bot.sender import TECH_LIST_PRIVATE
     filtered = WorkFilter.get_works_by_period(TECH_LIST_PRIVATE, 5)
     filtered = WorkFilter.sort_by_nearest_work(filtered)
     await send_works_in_chunks(message, filtered, "за 5 дней")
-
 
 @router.message(F.text == 'За 14 дней')
 async def works_by_14(message: Message):

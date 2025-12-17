@@ -1,1 +1,0 @@
-C:\\Soft\\chromedriver\\chromedriver.exe
