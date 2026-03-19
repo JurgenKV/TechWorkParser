@@ -72,7 +72,7 @@ class UniversalDate:
         if dates:
             return dates[0]
         else:
-            return "00.00.0000"
+            return None
 
     @staticmethod
     def parse_date_with_month_word(text):

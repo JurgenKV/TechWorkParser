@@ -266,10 +266,6 @@ def create_message_text_by_template(works_message,new_work ):
             f'<b>Описание:</b> Перепроверить\n\n'
         )
     else:
-        if new_work.date_of_work is None:
-            new_work.date_of_work = 'На сайте'
-        if new_work.description == '':
-            new_work.description = 'На сайте'
         works_message += (
             f'<b><i>[{new_work.publishing_date}] <a href="{new_work.link}">{new_work.service_type}</a></i></b>\n'
             f'<b>Заголовок:</b> {new_work.work_header}\n'

@@ -9,6 +9,8 @@ import TechData
 import UniDate
 import LinkConst
 import LOG
+from WorkFilter import fill_empty_work_fields_by_const_text
+
 
 def get_all_parsing_data():
     print('START PARSING - ' + f'{datetime.datetime.now().time()}')
@@ -47,12 +49,13 @@ def get_all_parsing_data():
         (parse_Bank_Zepter, 'Цептер Банк'),
         (parse_Bank_Sberbank, 'Сбербанк'),
         (parse_Bank_Priorbank, 'Приорбанк'),
-        (parse_WhiteBird, 'WhiteBird')
+        (parse_WhiteBird, 'WhiteBird'),
+        (parse_BSCE, 'Бел.Вал-Фонд.Биржа')
     ]
 
-    functions_to_parse_test = [
-        (parse_WhiteBird, 'WhiteBird')
-    ]
+    #functions_to_parse_test = [
+    #    (parse_WhiteBird, 'WhiteBird')
+    #]
 
     for func, arg in functions_to_parse:
         try:
@@ -73,6 +76,7 @@ def get_all_parsing_data():
     # print(f"Описание: {notif.description}")
     # print(f"{notif.service_type} -- {notif.publishing_date}")
     #    print(f"{notif.publishing_date} Сервис:  {notif.service_type} = {notif.work_header} = {notif.link}")
+    all_tech_list = fill_empty_work_fields_by_const_text(all_tech_list)
     return all_tech_list
 
 def is_contains_work_keywords(text):
@@ -1016,3 +1020,34 @@ def parse_WhiteBird(service_name = 'service_name is null'):
             print(f"data Exception in {service_name}")
             LOG.error(f"{str(e)} \n data Exception in {service_name}")
     return tech_data_list
+
+def parse_BSCE(service_name = 'service_name is null'):
+    tech_data_list = []
+    soup = HTMLTaker.get_soup_page_fullJS(LinkConst.BCSE, 'lxml')
+    if soup is None:
+        return
+    # item новости
+    all_notif = soup.find_all('div', class_='col-sm-12 col-md-6 mb-4')
+
+    for data in all_notif:
+        try:
+            temp_tech_data = TechData.TechData(service_name)
+            # Ссылка на новость
+            temp_tech_data = TechData.TechData.get_news_link_from_tag(temp_tech_data, data, LinkConst.BCSE, 'a', 'href')
+            # Дата публикации
+            if data.find_all('span', class_= 'releases-date') is not None:
+                universal_date = UniDate.UniversalDate(data.find_all('span', class_= 'releases-date'))
+                temp_tech_data.publishing_date = UniDate.UniversalDate.parse_date_from_text(universal_date.date_string)
+            # Заголовок новости и дата планируемой тех. работы(если есть в адекватном формате)
+            if data.find_all('span',class_='releases-col-text') is not None:
+                temp_tech_data.work_header = data.find_all('span',class_="releases-col-text")[0].text.strip()
+                temp_tech_data.date_of_work = UniDate.UniversalDate.parse_date_from_text(data.find_all('span',class_='releases-col-text'))
+
+            temp_tech_data.link = LinkConst.BCSE
+            check_service_info(tech_data_list, temp_tech_data)
+        except Exception as e:
+            print(e)
+            print(f"data Exception in {service_name}")
+            LOG.error(f"{str(e)} \n data Exception in {service_name}")
+    return tech_data_list
+

@@ -5,7 +5,7 @@ import LOG
 
 def get_publication_date_datetime(str_date):
     try:
-        if str_date is not None or str_date != "":
+        if str_date is not None or str_date != "" or str_date != "None":
             date = datetime.strptime(str_date, "%d.%m.%Y")
         else:
             return datetime.now().today()
@@ -31,3 +31,13 @@ def get_works_by_period(works: list[TechData], days):
 
 def sort_by_nearest_work(works: list[TechData]):
     return sorted(works, key=lambda x: get_publication_date_datetime(x.publishing_date), reverse=True)
+
+def fill_empty_work_fields_by_const_text(works: list[TechData]):
+    for work in works:
+        if work.date_of_work is None or work.date_of_work == "" or work.date_of_work == " " or work.date_of_work == "None":
+            work.const_text = "На сайте"
+        if work.publishing_date is None or work.publishing_date == "" or work.publishing_date == " " or work.publishing_date == "None":
+            work.const_text = "На сайте"
+        if work.description is None or work.description == "" or work.description == " " or work.description == "None":
+            work.const_text = "На сайте"
+    return works
